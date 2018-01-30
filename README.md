@@ -3,5 +3,5 @@ Ohjelmistoprojekti II SWD4TN024-3, Haaga-Helia ammattikorkeakoulu
 Kevät 2018
 
 ## Dokumentit
-* [Tiimin suunnitelma](documents/SWD4TN024-3_Suunta-ohjelmistoprojektin-suunnitelma.pptx) *Päivitetty 23.1.2018 (Kaikki)*
+* [Tiimin suunnitelma](documents/SWD4TN024-3_Suunta-ohjelmistoprojektin-suunnitelma.pptx) *Päivitetty 30.1.2018 (Mikko)*
 
