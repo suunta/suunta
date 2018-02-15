@@ -16,8 +16,8 @@ export default class JunaReitti extends Component<{}> {
         }
     }
 
-    fetchTrainData() {
-        return fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/PSL/KE')
+    fetchTrainData = async () => {
+        fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/PSL/KE')
             .then((response) => response.json())
             .then(junat => junat.map(juna => {
                     return {
@@ -30,7 +30,6 @@ export default class JunaReitti extends Component<{}> {
                 })
             )
             .then((responseJson) => {
-                //let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
                 this.setState({
                     isLoading: false,
                     data: responseJson,
