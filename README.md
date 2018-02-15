@@ -5,3 +5,5 @@ Kevät 2018
 ## Dokumentit
 * [Tiimin suunnitelma](documents/SWD4TN024-3_Suunta-ohjelmistoprojektin-suunnitelma.pptx) *Päivitetty 30.1.2018 (Mikko)*
 
+## Status
+...
