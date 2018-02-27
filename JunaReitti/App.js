@@ -17,15 +17,22 @@ export default class JunaReitti extends Component<{}> {
     }
 
     fetchTrainData = async () => {
-        fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/PSL/KE')
+
+        // Haetaan tämänhetkinen aika, jottei haeta jo menneitä junia - onko tarpeeton rajaus, toimiiko apin haku muutenkin oikein? -Mikko
+        var currentTime = new Date();
+        let currentTimeISO = currentTime.toISOString();
+
+        let apiCall = 'https://rata.digitraffic.fi/api/v1/live-trains/station/PSL/KE?limit=15&startDate='+currentTimeISO+'';
+
+        fetch(apiCall)
             .then((response) => response.json())
             .then(junat => junat.map(juna => {
                     return {
                         id: juna.trainNumber,
                         tunnus: juna.commuterLineID,
-                        lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === 'PSL' && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16),
+                        lahtoAika: new Date(juna.timeTableRows.filter((row) => row.stationShortCode === 'PSL' && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime).toString().slice(16, 21),
                         lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === 'PSL' && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
-                        tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === 'KE' && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16)
+                        tuloAika: new Date(juna.timeTableRows.filter((row) => row.stationShortCode === 'KE' && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime).toString().slice(16, 21)
                     }
                 })
             )
@@ -43,19 +50,24 @@ export default class JunaReitti extends Component<{}> {
     }
 
     componentDidMount() {
+        console.log('!! mount');
         return this.fetchTrainData();
     }
 
     onRefresh = async () => {
+        console.log('*** sync start');
         this.setState({
+            data: null,
             isRefreshing: true
         });
 
-        //await this.fetchTrainData();
+        console.log('*** fetching data async');
 
         await this.setState({
             data: this.fetchTrainData()
         });
+
+        console.log('*** fetch done');
 
         this.setState({
             isRefreshing: false
@@ -115,14 +127,6 @@ export default class JunaReitti extends Component<{}> {
                         refreshing={this.state.isRefreshing}
                     />
                 </List>
-                {/*
-                    <ListView
-                        dataSource={this.state.dataSource}
-                        renderRow={(rowData) =>
-                            <Text>{rowData.id} | {rowData.tunnus} | {rowData.lahtoAika} | {rowData.lahtoRaide} | {rowData.tuloAika} </Text>}
-                    />
-                </List>
-                */}
             </View>
         );
     }
