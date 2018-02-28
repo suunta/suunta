@@ -1,10 +1,11 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, ListView, TextInput, TouchableOpacity, StyleSheet, FlatList} from "react-native";
 import {List, ListItem} from "react-native-elements";
+import InputfieldAsematAutocomplete from './components/InputfieldAsematAutocomplete.js';
 
-//import Autocomplete from 'react-native-autocomplete-input'; // 3.3.1
+import Autocomplete from 'react-native-autocomplete-input'; // 3.3.1
 
-export default class JunaReitti extends Component<{}> {
+export default class JunaReitti extends Component {
 
     constructor(props) {
         super(props);
@@ -12,7 +13,9 @@ export default class JunaReitti extends Component<{}> {
         this.state = {
             data: [],
             isLoading: true,
-            isRefreshing: false
+            isRefreshing: false,
+            lahtoAsema: 'PSL',
+            tuloAsema: 'KE'
         }
     }
 
@@ -22,9 +25,9 @@ export default class JunaReitti extends Component<{}> {
         var currentTime = new Date();
         let currentTimeISO = currentTime.toISOString();
 
-        let apiCall = 'https://rata.digitraffic.fi/api/v1/live-trains/station/PSL/KE?limit=15&startDate='+currentTimeISO+'';
+        let apiAddress = 'https://rata.digitraffic.fi/api/v1/live-trains/station/' + this.state.lahtoAsema + '/' + this.state.tuloAsema + '?limit=15&startDate=' + currentTimeISO + '';
 
-        fetch(apiCall)
+        fetch(apiAddress)
             .then((response) => response.json())
             .then(junat => junat.map(juna => {
                     return {
@@ -76,31 +79,25 @@ export default class JunaReitti extends Component<{}> {
     };
 
     renderHeader() {
-        return <View style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            alignItems: 'center'
-        }}>
-            <Text>Tunnus</Text>
-            <Text>Lähtöaika</Text>
-            <Text>Lähtöraide</Text>
-            <Text>Tuloaika</Text>
-        </View>
+        return (
+            <View style={styles.junalista}>
+                <Text>Tunnus</Text>
+                <Text>Lähtöaika</Text>
+                <Text>Lähtöraide</Text>
+                <Text>Tuloaika</Text>
+            </View>
+        );
     };
 
-    renderItem({ item, index }) {
-        return <View style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    justifyContent: 'space-around',
-                    alignItems: 'center'
-                }}>
+    renderItem({item, index}) {
+        return (
+            <View style={styles.junalista}>
                 <Text>{item.tunnus}</Text>
                 <Text>{item.lahtoAika}</Text>
                 <Text>{item.lahtoRaide}</Text>
                 <Text>{item.tuloAika}</Text>
-        </View>;
+            </View>
+        );
     }
 
     render() {
@@ -116,7 +113,8 @@ export default class JunaReitti extends Component<{}> {
 
         return (
             <View style={{flex: 1, paddingTop: 0}}>
-                {/*<Text>id | Tunnus | Lähtöaika | Raide | Tuloaika</Text>*/}
+                {<Text>Lähtöasema: {this.state.lahtoAsema} | Tuloasema: {this.state.tuloAsema}</Text>}
+                <InputfieldAsematAutocomplete/>
                 <List>
                     <FlatList
                         data = {this.state.data}
@@ -131,3 +129,20 @@ export default class JunaReitti extends Component<{}> {
         );
     }
 }
+
+const styles = StyleSheet.create ({
+    junalista: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        height: 28
+    },
+    junat: {
+        fontSize: 20
+    },
+    junatHeader: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    }
+});
