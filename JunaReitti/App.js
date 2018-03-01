@@ -1,8 +1,7 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, ListView, TextInput, TouchableOpacity, StyleSheet, FlatList} from "react-native";
 import {List, ListItem} from "react-native-elements";
-
-//import Autocomplete from 'react-native-autocomplete-input'; // 3.3.1
+import Input from "./Components/Input"
 
 export default class JunaReitti extends Component<{}> {
 
@@ -12,8 +11,10 @@ export default class JunaReitti extends Component<{}> {
         this.state = {
             data: [],
             isLoading: true,
-            isRefreshing: false
-        }
+            isRefreshing: false,
+            destinationS: '',
+            departureS: ''
+        };
     }
 
     fetchTrainData = async () => {
@@ -40,7 +41,19 @@ export default class JunaReitti extends Component<{}> {
             .catch((error) => {
                 console.error(error);
             });
-    }
+    };
+
+    handleDepartInput = (userInput) => {
+        this.setState({
+                departureS: userInput
+        })
+    };
+
+    handleDestInput = (userInput) => {
+        this.setState({
+            destinationS: userInput
+        })
+    };
 
     componentDidMount() {
         return this.fetchTrainData();
@@ -101,10 +114,15 @@ export default class JunaReitti extends Component<{}> {
             );
         }
 
-
         return (
             <View style={{flex: 1, paddingTop: 0}}>
                 {/*<Text>id | Tunnus | Lähtöaika | Raide | Tuloaika</Text>*/}
+
+                <View style={styles.inputContainer}>
+                <Input userInput={this.handleDepartInput}/>
+                <Input userInput={this.handleDestInput}/>
+                </View>
+
                 <List>
                     <FlatList
                         data = {this.state.data}
@@ -127,3 +145,11 @@ export default class JunaReitti extends Component<{}> {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    inputContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    }
+});
