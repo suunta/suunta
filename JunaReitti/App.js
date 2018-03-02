@@ -12,21 +12,26 @@ export default class JunaReitti extends Component<{}> {
             data: [],
             isLoading: true,
             isRefreshing: false,
-            destinationS: '',
-            departureS: ''
+            lahtoAsema: '',
+            tuloAsema: '',
+            lahtoLyhenne: '',
+            tuloLyhenne: '',
+            asemat: []
         };
     }
 
+    // return this.fetchTrainData();
+
     fetchTrainData = async () => {
-        fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/PSL/KE')
+        fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoAsema+'/'+this.state.tuloAsema)
             .then((response) => response.json())
             .then(junat => junat.map(juna => {
                     return {
                         id: juna.trainNumber,
                         tunnus: juna.commuterLineID,
-                        lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === 'PSL' && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16),
-                        lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === 'PSL' && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
-                        tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === 'KE' && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16)
+                        lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoAsema && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16),
+                        lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoAsema && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
+                        tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloAsema && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16)
                     }
                 })
             )
@@ -44,19 +49,48 @@ export default class JunaReitti extends Component<{}> {
     };
 
     handleDepartInput = (userInput) => {
-        this.setState({
-                departureS: userInput
-        })
+        for(let asema in this.state.asemat) {
+            if(userInput === this.state.asemat[asema].stationName) {
+                this.setState({
+                    lahtoAsema: this.state.asemat[asema].stationName,
+                    lahtoLyhenne: this.state.asemat[asema].stationShortCode
+                });
+                console.log(this.state.lahtoAsema + " LAHTOASEMA JEE")
+            }
+        }
     };
 
     handleDestInput = (userInput) => {
-        this.setState({
-            destinationS: userInput
-        })
+            for(let asema in this.state.asemat) {
+                //console.log(this.state.asemat[asema].stationName);
+                if(userInput === this.state.asemat[asema].stationName) {
+                    this.setState({
+                        tuloAsema: this.state.asemat[asema].stationName,
+                        tuloLyhenne: this.state.asemat[asema].stationShortCode
+                    });
+                    console.log(this.state.tuloAsema + ' TULOASEMA JEE')
+                }
+        }
+        console.log(userInput);
     };
 
     componentDidMount() {
-        return this.fetchTrainData();
+        fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
+            .then((response) => response.json())
+            .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
+            .then(asemat => asemat.map(asema => {
+                    return {
+                        id: asema.stationUICCode,
+                        stationShortCode: asema.stationShortCode,
+                        stationName: asema.stationName,
+                        passengerTraffic: asema.passengerTraffic
+                    }
+                })
+            )
+            // .then(asemat => console.log(asemat))
+            .then(asemat => this.setState({
+            isLoading: false,
+            asemat: asemat}));
     }
 
     onRefresh = async () => {
@@ -117,11 +151,17 @@ export default class JunaReitti extends Component<{}> {
         return (
             <View style={{flex: 1, paddingTop: 0}}>
                 {/*<Text>id | Tunnus | Lähtöaika | Raide | Tuloaika</Text>*/}
+                {<Text>Lähtöasema: {this.state.lahtoAsema} | Tuloasema: {this.state.tuloAsema}</Text>}
 
                 <View style={styles.inputContainer}>
                 <Input userInput={this.handleDepartInput}/>
                 <Input userInput={this.handleDestInput}/>
                 </View>
+                <Text>{this.state.lahtoAsema}</Text>
+                <Text>{this.state.lahtoLyhenne}</Text>
+
+                <Text>{this.state.tuloAsema}</Text>
+                <Text>{this.state.tuloLyhenne}</Text>
 
                 <List>
                     <FlatList
