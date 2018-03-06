@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {ActivityIndicator, View, Text, ListView, TextInput, TouchableOpacity, StyleSheet, FlatList} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList} from "react-native";
 import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input"
 
@@ -26,16 +26,24 @@ export default class JunaReitti extends Component<{}> {
         });
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             console.log("hakee " + this.state.lahtoLyhenne + " " + this.state.tuloLyhenne);
-            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne)
+            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + "?limit=20")
                 .then((response) => response.json())
                 .then(junat => junat.map(juna => {
+
+                    const fetchDepDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime);
+                    const finalDepDate = fetchDepDate.getHours() + ":" + (fetchDepDate.getMinutes() < 10 ? "0" : '') + fetchDepDate.getMinutes();
+
+                    const fetchArrDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime);
+                    const finalArrDate = fetchArrDate.getHours() + ":" + (fetchArrDate.getMinutes() < 10 ? "0" : '') + fetchArrDate.getMinutes();
+
+                    console.log(finalDepDate);
 
                         return {
                             id: juna.trainNumber,
                             tunnus: juna.commuterLineID,
-                            lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16), //slice(11, 16)
+                            lahtoAika: finalDepDate,
                             lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
-                            tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16) //slice(11, 16)
+                            tuloAika: finalArrDate
                         }
                     })
                 )
@@ -160,7 +168,7 @@ export default class JunaReitti extends Component<{}> {
     renderItem({item, index}) {
         return (
             <View style={styles.junalista}>
-                <Text>{item.tunnus}</Text>
+                <Text style={styles.tunnus}>  {item.tunnus}</Text>
                 <Text>{item.lahtoAika}</Text>
                 <Text>{item.lahtoRaide}</Text>
                 <Text>{item.tuloAika}</Text>
@@ -233,5 +241,13 @@ const styles = StyleSheet.create({
     junatHeader: {
         fontSize: 20,
         fontWeight: 'bold'
+    },
+    tunnus: {
+        height: 22,
+        width: 22,
+        borderRadius: 11,
+        backgroundColor: '#EEEEEE',
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 });
