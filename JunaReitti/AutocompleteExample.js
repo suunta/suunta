@@ -25,7 +25,7 @@ class AutocompleteExample extends Component {
                     return {
                         id: asema.stationUICCode,
                         stationShortCode: asema.stationShortCode,
-                        stationName: asema.stationName,
+                        stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
                         passengerTraffic: asema.passengerTraffic
                     }
                 })
@@ -74,6 +74,7 @@ class AutocompleteExample extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        height: 90
     },
     autocompleteContainer: {
         flex: 1,

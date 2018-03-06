@@ -93,7 +93,7 @@ export default class JunaReitti extends Component {
     renderItem({item, index}) {
         return (
             <View style={styles.junalista}>
-                <Text>{item.tunnus}</Text>
+                <Text style={styles.tunnus}>  {item.tunnus}</Text>
                 <Text>{item.lahtoAika}</Text>
                 <Text>{item.lahtoRaide}</Text>
                 <Text>{item.tuloAika}</Text>
@@ -117,7 +117,9 @@ export default class JunaReitti extends Component {
                     <View style={{height: 150}}>
                         <View style={{flex: 5, flexDirection:'column'}}>
                             <Text>Lähtöasema: {this.state.lahtoAsema}</Text>
-                            <AutocompleteExample/>
+                            <View style={{position: 'absolute'}}>
+                                <AutocompleteExample/>
+                            </View>
                         </View>
 
                         {/*
@@ -164,5 +166,13 @@ const styles = StyleSheet.create ({
     junatHeader: {
         fontSize: 20,
         fontWeight: 'bold'
+    },
+    tunnus: {
+        height: 22,
+        width: 22,
+        borderRadius: 11,
+        backgroundColor: '#EEEEEE',
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 });
