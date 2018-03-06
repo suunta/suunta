@@ -20,64 +20,90 @@ export default class JunaReitti extends Component<{}> {
         };
     }
 
-    // return this.fetchTrainData();
-
     fetchTrainData = () => {
-        console.log("HAKEE " + this.state.tuloLyhenne + " " + this.state.lahtoLyhenne);
-        fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne)
-            .then((response) => response.json())
-            .then(junat => junat.map(juna => {
-                    return {
-                        id: juna.trainNumber,
-                        tunnus: juna.commuterLineID,
-                        lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16), //slice(11, 16)
-                        lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
-                        tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16) //slice(11, 16)
-                    }
+        if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
+            console.log("HAKEE " + this.state.lahtoLyhenne + " " + this.state.tuloLyhenne);
+            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne)
+                .then((response) => response.json())
+                .then(junat => junat.map(juna => {
+
+                        return {
+                            id: juna.trainNumber,
+                            tunnus: juna.commuterLineID,
+                            lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16), //slice(11, 16)
+                            lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
+                            tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16) //slice(11, 16)
+                        }
+                    })
+                )
+                .catch(error => console.log(error))
+                .then((responseJson) => {
+                    this.setState({
+                        isLoading: false,
+                        data: responseJson,
+                    }, function () {
+                        // do something with new state
+                    });
                 })
-            )
-            .then((responseJson) => {
-                this.setState({
-                    isLoading: false,
-                    data: responseJson,
-                }, function () {
-                    // do something with new state
+                .catch((error) => {
+                    console.error(error);
                 });
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        }
+        };
+
+    /*
+    handleInput = (formName, userInput) => {
+        console.log(userInput);
+        for (let asema in this.state.asemat) {
+            if (userInput === this.state.asemat[asema].stationName) {
+                console.log("ensimmäinen loop " + userInput);
+                if(formName === "lahto") {
+                    this.setState({
+                            lahtoAsema: this.state.asemat[asema].stationName,
+                            lahtoLyhenne: this.state.asemat[asema].stationShortCode
+                        },
+                        () => {
+                            this.fetchTrainData();
+                        });
+                }
+                } else if(formName === "tulo") {
+                this.setState({
+                        tuloAsema: this.state.asemat[asema].stationName,
+                        tuloLyhenne: this.state.asemat[asema].stationShortCode
+                    },
+                    () => {
+                        this.fetchTrainData();
+                    });
+            }
+        }
     };
+    */
 
     handleDepartInput = (userInput) => {
-        for(let asema in this.state.asemat) {
-            if(userInput === this.state.asemat[asema].stationName) {
+        for (let asema in this.state.asemat) {
+            if (userInput === this.state.asemat[asema].stationName) {
                 this.setState({
-                    lahtoAsema: this.state.asemat[asema].stationName,
-                    lahtoLyhenne: this.state.asemat[asema].stationShortCode
-                },
-                    ()=> {if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
-                    console.log("fetching train data");
-                    this.fetchTrainData();
-                }});
+                        lahtoAsema: this.state.asemat[asema].stationName,
+                        lahtoLyhenne: this.state.asemat[asema].stationShortCode
+                    },
+                    () => {
+                        this.fetchTrainData();
+                    });
             }
         }
     };
 
     handleDestInput = (userInput) => {
-            for(let asema in this.state.asemat) {
-                //console.log(this.state.asemat[asema].stationName);
-                if(userInput === this.state.asemat[asema].stationName) {
-                    this.setState({
-                        tuloAsema: this.state.asemat[asema].stationName,
-                        tuloLyhenne: this.state.asemat[asema].stationShortCode
-                    }, () => {if(this.state.lahtoLyhenne !== '' && this.state.tuloLyhenne !== '') {
-                        console.log("fetching train data");
-                        return this.fetchTrainData();
-                    }});
-                }
+        for (let asema in this.state.asemat) {
+            if (userInput === this.state.asemat[asema].stationName) {
+                this.setState({
+                    tuloAsema: this.state.asemat[asema].stationName,
+                    tuloLyhenne: this.state.asemat[asema].stationShortCode
+                }, () => {
+                    this.fetchTrainData();
+                });
+            }
         }
-        console.log(userInput);
     };
 
     componentDidMount() {
@@ -161,12 +187,11 @@ export default class JunaReitti extends Component<{}> {
                 <Input userInput={this.handleDepartInput}/>
                 <Input userInput={this.handleDestInput}/>
                 </View>
-                {/*<Text>{this.state.lahtoAsema}</Text>
+                <Text>{this.state.lahtoAsema}</Text>
                 <Text>{this.state.lahtoLyhenne}</Text>
 
                 <Text>{this.state.tuloAsema}</Text>
                 <Text>{this.state.tuloLyhenne}</Text>
-                */}
 
                 <List>
                     <FlatList
