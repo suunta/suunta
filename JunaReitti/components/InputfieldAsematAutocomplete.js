@@ -20,6 +20,7 @@ class InputfieldAsematAutocomplete extends Component {
   componentDidMount() {
       fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
           .then((response) => response.json())
+          .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
           .then(asemat => asemat.map(asema => {
                   return {
                       id: asema.stationUICCode,
@@ -28,30 +29,24 @@ class InputfieldAsematAutocomplete extends Component {
                       passengerTraffic: asema.passengerTraffic
                   }
               })
-          )
-
-      {/*
-    fetch('https://rata.digitraffic.fi/api/v1/metadata/stations').then(res => res.json()).then((json) => {
-      console.log('*** haetaan asemia');
-      const { results: asemat } = json;
-      this.setState({
-          asemat: asemat
-      });
-    }).then(console.log(this.state.asemat.toString()));
-      */}
-
+          ).then(asemat => this.setState({asemat: asemat}))
   }
-
-
 
   etsiAsema(syote) {
     if (syote === '') {
       return [];
     }
 
+    //console.log(this.state.syote);
+
     const { asemat } = this.state;
-    const regex = new RegExp('${syote.trim()}', 'i');
-    return asemat.filter(asema => asema.stationName.search(regex) >= 0);
+    const regex = new RegExp(syote.trim(), 'i');
+
+    let tulos = asemat.filter(asema => asema.stationName.search(regex) >= 0);
+    //console.log(tulos);
+
+    return tulos;
+
   }
 
   render() {
@@ -61,22 +56,33 @@ class InputfieldAsematAutocomplete extends Component {
 
     return (
       <View style={styles.container}>
+          <View>
+              <Text>{this.state.lahtoAsema}</Text>
+          </View>
         <Autocomplete
           autoCapitalize="none"
           autoCorrect={false}
           containerStyle={styles.autocompleteContainer}
-          data={asemat.length === 1 && comp(syote, asemat[0].title) ? [] : asemat}
+          data={asemat.length === 0 ? [] : asemat}
           defaultValue={syote}
           onChangeText={text => this.setState({ syote: text })}
           placeholder="Syotä aseman nimi"
-          renderItem={({ title: stationName, release_date: stationShortCode }) => (
-            <TouchableOpacity onPress={() => this.setState({ syote: stationName })}>
+          renderItem={({ stationName: stationName, stationShortCode: stationShortCode }) => (
+            <TouchableOpacity onPress={() => {
+                this.setState({
+                    syote: stationName,
+                    lahtoAsema: stationName
+                });
+                console.log(syote);
+            }
+            }>
               <Text style={styles.itemText}>
                 {stationName} ({stationShortCode})
               </Text>
             </TouchableOpacity>
           )}
         />
+
       </View>
     );
   }
@@ -84,9 +90,8 @@ class InputfieldAsematAutocomplete extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF',
     flex: 1,
-    paddingTop: 25
+    paddingTop: 50
   },
   autocompleteContainer: {
     flex: 1,

@@ -3,7 +3,8 @@ import {ActivityIndicator, View, Text, ListView, TextInput, TouchableOpacity, St
 import {List, ListItem} from "react-native-elements";
 import InputfieldAsematAutocomplete from './components/InputfieldAsematAutocomplete.js';
 
-import Autocomplete from 'react-native-autocomplete-input'; // 3.3.1
+import Autocomplete from 'react-native-autocomplete-input';
+import AutocompleteExample from "./AutocompleteExample"; // 3.3.1
 
 export default class JunaReitti extends Component {
 
@@ -104,7 +105,7 @@ export default class JunaReitti extends Component {
 
         if (this.state.isLoading) {
             return (
-                <View style={{flex: 1, paddingTop: 40}}>
+                <View style={{flex: 1, paddingTop: 10}}>
                     <ActivityIndicator/>
                 </View>
             );
@@ -112,20 +113,39 @@ export default class JunaReitti extends Component {
 
 
         return (
-            <View style={{flex: 1, paddingTop: 0}}>
-                {<Text>Lähtöasema: {this.state.lahtoAsema} | Tuloasema: {this.state.tuloAsema}</Text>}
-                <InputfieldAsematAutocomplete/>
-                <List>
-                    <FlatList
-                        data = {this.state.data}
-                        keyExtractor = {item => item.id.toString()}
-                        ListHeaderComponent = {this.renderHeader}
-                        renderItem = {this.renderItem}
-                        onRefresh={this.onRefresh}
-                        refreshing={this.state.isRefreshing}
-                    />
-                </List>
-            </View>
+                <View style={{flex: 1, flexDirection:'column'}}>
+                    <View style={{height: 150}}>
+                        <View style={{flex: 5, flexDirection:'column'}}>
+                            <Text>Lähtöasema: {this.state.lahtoAsema}</Text>
+                            <AutocompleteExample/>
+                        </View>
+
+                        {/*
+                        <View style={{flex: 1, flexDirection:'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#EEEEEE'}}>
+                            <Text>{'->'}</Text>
+                            <Text>{'<-'}</Text>
+                        </View>
+                        */}
+
+                        <View style={{flex: 5, flexDirection:'column'}}>
+                            <Text>Tuloasema: {this.state.tuloAsema}</Text>
+                            <AutocompleteExample/>
+                        </View>
+                    </View>
+
+                    <View style={{}}>
+                        <List>
+                            <FlatList
+                                data = {this.state.data}
+                                keyExtractor = {item => item.id.toString()}
+                                ListHeaderComponent = {this.renderHeader}
+                                renderItem = {this.renderItem}
+                                onRefresh={this.onRefresh}
+                                refreshing={this.state.isRefreshing}
+                            />
+                        </List>
+                    </View>
+                </View>
         );
     }
 }
@@ -136,7 +156,7 @@ const styles = StyleSheet.create ({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        height: 28
+        height: 26
     },
     junat: {
         fontSize: 20
