@@ -22,16 +22,17 @@ export default class JunaReitti extends Component<{}> {
 
     // return this.fetchTrainData();
 
-    fetchTrainData = async () => {
-        fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoAsema+'/'+this.state.tuloAsema)
+    fetchTrainData = () => {
+        console.log("HAKEE " + this.state.tuloLyhenne + " " + this.state.lahtoLyhenne);
+        fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne)
             .then((response) => response.json())
             .then(junat => junat.map(juna => {
                     return {
                         id: juna.trainNumber,
                         tunnus: juna.commuterLineID,
-                        lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoAsema && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16),
-                        lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoAsema && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
-                        tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloAsema && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16)
+                        lahtoAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime.slice(11, 16), //slice(11, 16)
+                        lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
+                        tuloAika: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime.slice(11, 16) //slice(11, 16)
                     }
                 })
             )
@@ -54,8 +55,11 @@ export default class JunaReitti extends Component<{}> {
                 this.setState({
                     lahtoAsema: this.state.asemat[asema].stationName,
                     lahtoLyhenne: this.state.asemat[asema].stationShortCode
-                });
-                console.log(this.state.lahtoAsema + " LAHTOASEMA JEE")
+                },
+                    ()=> {if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
+                    console.log("fetching train data");
+                    this.fetchTrainData();
+                }});
             }
         }
     };
@@ -67,8 +71,10 @@ export default class JunaReitti extends Component<{}> {
                     this.setState({
                         tuloAsema: this.state.asemat[asema].stationName,
                         tuloLyhenne: this.state.asemat[asema].stationShortCode
-                    });
-                    console.log(this.state.tuloAsema + ' TULOASEMA JEE')
+                    }, () => {if(this.state.lahtoLyhenne !== '' && this.state.tuloLyhenne !== '') {
+                        console.log("fetching train data");
+                        return this.fetchTrainData();
+                    }});
                 }
         }
         console.log(userInput);
@@ -150,18 +156,17 @@ export default class JunaReitti extends Component<{}> {
 
         return (
             <View style={{flex: 1, paddingTop: 0}}>
-                {/*<Text>id | Tunnus | Lähtöaika | Raide | Tuloaika</Text>*/}
-                {<Text>Lähtöasema: {this.state.lahtoAsema} | Tuloasema: {this.state.tuloAsema}</Text>}
 
                 <View style={styles.inputContainer}>
                 <Input userInput={this.handleDepartInput}/>
                 <Input userInput={this.handleDestInput}/>
                 </View>
-                <Text>{this.state.lahtoAsema}</Text>
+                {/*<Text>{this.state.lahtoAsema}</Text>
                 <Text>{this.state.lahtoLyhenne}</Text>
 
                 <Text>{this.state.tuloAsema}</Text>
                 <Text>{this.state.tuloLyhenne}</Text>
+                */}
 
                 <List>
                     <FlatList
