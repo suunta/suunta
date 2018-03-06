@@ -25,8 +25,11 @@ export default class JunaReitti extends Component<{}> {
             isRefreshing: true
         });
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
-            console.log("hakee " + this.state.lahtoLyhenne + " " + this.state.tuloLyhenne);
-            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + "?limit=20")
+
+            let currentTime = new Date();
+            let currentTimeISO = currentTime.toISOString();
+
+            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=15&startDate=' + currentTimeISO)
                 .then((response) => response.json())
                 .then(junat => junat.map(juna => {
 
@@ -35,8 +38,6 @@ export default class JunaReitti extends Component<{}> {
 
                     const fetchArrDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime);
                     const finalArrDate = fetchArrDate.getHours() + ":" + (fetchArrDate.getMinutes() < 10 ? "0" : '') + fetchArrDate.getMinutes();
-
-                    console.log(finalDepDate);
 
                         return {
                             id: juna.trainNumber,
