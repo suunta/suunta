@@ -93,6 +93,7 @@ export default class JunaReitti extends Component<{}> {
     */
 
     handleDepartInput = (userInput) => {
+		userInput = userInput.trim();
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
                 this.setState({
@@ -107,6 +108,7 @@ export default class JunaReitti extends Component<{}> {
     };
 
     handleDestInput = (userInput) => {
+		userInput = userInput.trim();
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
                 this.setState({
