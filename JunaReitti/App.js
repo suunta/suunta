@@ -28,12 +28,13 @@ export default class JunaReitti extends Component<{}> {
 
             let currentTime = new Date();
             let currentTimeISO = currentTime.toISOString();
+			let currentTimeISODate = new Date(currentTimeISO);
 
             fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=15&startDate=' + currentTimeISO)
                 .then((response) => response.json())
                 .then(junat => junat.map(juna => {
 
-                    const fetchDepDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime);
+                    const fetchDepDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE' && new Date(row.scheduledTime)>currentTimeISODate)[0].scheduledTime);
                     const finalDepDate = fetchDepDate.getHours() + ":" + ("0"+fetchDepDate.getMinutes()).slice(-2);
 
                     const fetchArrDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime);
@@ -93,7 +94,7 @@ export default class JunaReitti extends Component<{}> {
     */
 
     handleDepartInput = (userInput) => {
-		userInput = userInput.trim();
+        userInput = userInput.trim();
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
                 this.setState({
@@ -108,7 +109,7 @@ export default class JunaReitti extends Component<{}> {
     };
 
     handleDestInput = (userInput) => {
-		userInput = userInput.trim();
+        userInput = userInput.trim();
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
                 this.setState({
