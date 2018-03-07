@@ -34,10 +34,10 @@ export default class JunaReitti extends Component<{}> {
                 .then(junat => junat.map(juna => {
 
                     const fetchDepDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].scheduledTime);
-                    const finalDepDate = fetchDepDate.getHours() + ":" + (fetchDepDate.getMinutes() < 10 ? "0" : '') + fetchDepDate.getMinutes();
+                    const finalDepDate = fetchDepDate.getHours() + ":" + ("0"+fetchDepDate.getMinutes()).slice(-2);
 
                     const fetchArrDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime);
-                    const finalArrDate = fetchArrDate.getHours() + ":" + (fetchArrDate.getMinutes() < 10 ? "0" : '') + fetchArrDate.getMinutes();
+                    const finalArrDate = fetchArrDate.getHours() + ":" + ("0"+fetchArrDate.getMinutes()).slice(-2);
 
                         return {
                             id: juna.trainNumber,
@@ -196,7 +196,6 @@ export default class JunaReitti extends Component<{}> {
                 </View>
                 {/*<Text>{this.state.lahtoAsema}</Text>
                 <Text>{this.state.lahtoLyhenne}</Text>
-
                 <Text>{this.state.tuloAsema}</Text>
                 <Text>{this.state.tuloLyhenne}</Text>*/}
 
