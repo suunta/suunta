@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, StyleSheet, FlatList} from "react-native";
 import {List, ListItem} from "react-native-elements";
-import Input from "./Components/Input"
+import Input from "./Components/Input";
+import sortBy from "lodash/sortBy";
 
 export default class JunaReitti extends Component<{}> {
 
@@ -16,19 +17,21 @@ export default class JunaReitti extends Component<{}> {
             tuloAsema: '',
             lahtoLyhenne: '',
             tuloLyhenne: '',
-            asemat: []
+            asemat: [],
+            minimiAika: 0
         };
     }
 
     fetchTrainData = () => {
         this.setState({
-            isRefreshing: true
+            isRefreshing: true,
+            minimiAika: 99999
         });
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
 
             let currentTime = new Date();
             let currentTimeISO = currentTime.toISOString();
-			let currentTimeISODate = new Date(currentTimeISO);
+            let currentTimeISODate = new Date(currentTimeISO);
 
             fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=15&startDate=' + currentTimeISO)
                 .then((response) => response.json())
@@ -40,12 +43,21 @@ export default class JunaReitti extends Component<{}> {
                     const fetchArrDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL')[0].scheduledTime);
                     const finalArrDate = fetchArrDate.getHours() + ":" + ("0"+fetchArrDate.getMinutes()).slice(-2);
 
+                    const traveltime = (fetchArrDate-fetchDepDate)/1000;
+                    if (this.state.minimiAika > traveltime) {
+                        this.setState({
+                            minimiAika: traveltime
+                        });
+                    }
+
                         return {
                             id: juna.trainNumber,
                             tunnus: juna.commuterLineID,
+                            lahtoPvm: fetchDepDate,
                             lahtoAika: finalDepDate,
                             lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
-                            tuloAika: finalArrDate
+                            tuloAika: finalArrDate,
+                            matkaAika: traveltime
                         }
                     })
                 )
@@ -100,8 +112,7 @@ export default class JunaReitti extends Component<{}> {
                 this.setState({
                         lahtoAsema: this.state.asemat[asema].stationName,
                         lahtoLyhenne: this.state.asemat[asema].stationShortCode
-                    },
-                    () => {
+                    }, () => {
                         this.fetchTrainData();
                     });
             }
@@ -204,7 +215,7 @@ export default class JunaReitti extends Component<{}> {
 
                 <List>
                     <FlatList
-                        data = {this.state.data}
+                        data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
                         keyExtractor = {item => item.id.toString()}
                         ListHeaderComponent = {this.renderHeader}
                         renderItem = {this.renderItem}
