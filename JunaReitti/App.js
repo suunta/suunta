@@ -25,7 +25,7 @@ export default class JunaReitti extends Component<{}> {
     fetchTrainData = () => {
         this.setState({
             isRefreshing: true,
-            minimiAika: 99999
+            minimiAika: 99999999
         });
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
 
