@@ -23,12 +23,12 @@ export default class JunaReitti extends Component<{}> {
     }
 
     fetchTrainData = () => {
-        this.setState({
-            isRefreshing: true,
-            minimiAika: 99999999
-        });
-        if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
 
+        if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
+            this.setState({
+                isRefreshing: true,
+                minimiAika: 99999999
+            });
             let currentTime = new Date();
             let currentTimeISO = currentTime.toISOString();
             let currentTimeISODate = new Date(currentTimeISO);
