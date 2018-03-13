@@ -49,9 +49,13 @@ export default class JunaReitti extends Component<{}> {
                         });
                     }
 
+                    const trainType = juna.commuterLineID !== "" ? juna.commuterLineID : juna.trainType + juna.trainNumber;
+
+                    //juna.commuterLineID
+                    //juna.filter((row) => row.commuterLineID === "" ? row.trainType : row.commuterLineID)
                         return {
                             id: juna.trainNumber,
-                            tunnus: juna.commuterLineID,
+                            tunnus: trainType,
                             lahtoPvm: fetchDepDate,
                             lahtoAika: finalDepDate,
                             lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
@@ -182,7 +186,7 @@ export default class JunaReitti extends Component<{}> {
     renderItem({item, index}) {
         return (
             <View style={styles.junalista}>
-                <Text style={styles.tunnus}>  {item.tunnus}</Text>
+                <Text>  {item.tunnus}</Text>
                 <Text>{item.lahtoAika}</Text>
                 <Text>{item.lahtoRaide}</Text>
                 <Text>{item.tuloAika}</Text>
