@@ -4,7 +4,7 @@ import {TextInput, View, StyleSheet, Text} from "react-native";
 class Input extends React.Component {
 
     inputHandler = (val) => {
-        this.props.userInput(val);
+        this.props.userInput(this.props.name, val);
     };
 
     render() {

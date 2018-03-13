@@ -80,58 +80,27 @@ export default class JunaReitti extends Component<{}> {
         }
         };
 
-    /*
-    handleInput = (formName, userInput) => {
+    handleInput = (type, userInput) => {
+        userInput = userInput.trim();
         console.log(userInput);
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
                 console.log("ensimmäinen loop " + userInput);
-                if(formName === "lahto") {
+                if (type === "lahto") {
                     this.setState({
-                            lahtoAsema: this.state.asemat[asema].stationName,
-                            lahtoLyhenne: this.state.asemat[asema].stationShortCode
-                        },
-                        () => {
-                            this.fetchTrainData();
-                        });
-                }
-                } else if(formName === "tulo") {
-                this.setState({
-                        tuloAsema: this.state.asemat[asema].stationName,
-                        tuloLyhenne: this.state.asemat[asema].stationShortCode
-                    },
-                    () => {
-                        this.fetchTrainData();
-                    });
-            }
-        }
-    };
-    */
-
-    handleDepartInput = (userInput) => {
-        userInput = userInput.trim();
-        for (let asema in this.state.asemat) {
-            if (userInput === this.state.asemat[asema].stationName) {
-                this.setState({
                         lahtoAsema: this.state.asemat[asema].stationName,
                         lahtoLyhenne: this.state.asemat[asema].stationShortCode
                     }, () => {
                         this.fetchTrainData();
                     });
-            }
-        }
-    };
-
-    handleDestInput = (userInput) => {
-        userInput = userInput.trim();
-        for (let asema in this.state.asemat) {
-            if (userInput === this.state.asemat[asema].stationName) {
-                this.setState({
-                    tuloAsema: this.state.asemat[asema].stationName,
-                    tuloLyhenne: this.state.asemat[asema].stationShortCode
-                }, () => {
-                    this.fetchTrainData();
-                });
+                } else if (type === "tulo") {
+                    this.setState({
+                            tuloAsema: this.state.asemat[asema].stationName,
+                            tuloLyhenne: this.state.asemat[asema].stationShortCode
+                        }, () => {
+                            this.fetchTrainData();
+                        });
+                }
             }
         }
     };
@@ -149,7 +118,6 @@ export default class JunaReitti extends Component<{}> {
                     }
                 })
             )
-            // .then(asemat => console.log(asemat))
             .then(asemat => this.setState({
             isLoading: false,
             asemat: asemat}));
@@ -208,8 +176,9 @@ export default class JunaReitti extends Component<{}> {
             <View style={{flex: 1, paddingTop: 0}}>
 
                 <View style={styles.inputContainer}>
-                <Input placeholder="Lähtöasema" userInput={this.handleDepartInput}/>
-                <Input placeholder="Tuloasema" userInput={this.handleDestInput}/>
+                <Input placeholder="Lähtöasema" name="tulo" userInput={this.handleInput}/>
+                <Input placeholder="Tuloasema" name="lahto" userInput={this.handleInput}/>
+
                 </View>
                 {/*<Text>{this.state.lahtoAsema}</Text>
                 <Text>{this.state.lahtoLyhenne}</Text>
