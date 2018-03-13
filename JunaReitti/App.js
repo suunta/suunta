@@ -1,10 +1,11 @@
 import React, {Component} from "react";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react-native";
 import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
+import Permissions from 'react-native-permissions';
 
-export default class JunaReitti extends Component<{}> {
+export default class JunaReitti extends Component {
 
     constructor(props) {
         super(props);
@@ -18,7 +19,11 @@ export default class JunaReitti extends Component<{}> {
             lahtoLyhenne: '',
             tuloLyhenne: '',
             asemat: [],
-            minimiAika: 0
+            minimiAika: 0,
+            locationPermission: '',
+            latitude: null,
+            longitude: null,
+            error: null
         };
     }
 
@@ -149,6 +154,11 @@ export default class JunaReitti extends Component<{}> {
             .then(asemat => this.setState({
             isLoading: false,
             asemat: asemat}));
+
+            Permissions.check('location').then(response => {
+                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+                this.setState({ locationPermission: response })
+            })
     }
 
     onRefresh = async () => {
@@ -190,8 +200,36 @@ export default class JunaReitti extends Component<{}> {
         );
     }
 
-    render() {
+    _requestPermission = () => {
+        
+        if (this.state.locationPermission =! 'authorized') {
+            Permissions.request('location').then(response => {
+                // Returns once the user has chosen to 'allow' or to 'not allow' access
+                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+                this.setState({ locationPermission: response })
+            })
+            console.log(this.state.locationPermission)
+        }    
 
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  console.log(position);
+                  this.setState({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    error: null,
+                  },() => {
+                        console.log(this.state.latitude)
+                        console.log(this.state.longitude)
+                    });
+                },
+                (error) => {console.log(error.message); this.setState({ error: error.message })},
+                { enableHighAccuracy: true, timeout: 20000 },
+            );
+    }
+
+    render() {
+        
         if (this.state.isLoading) {
             return (
                 <View style={{flex: 1, paddingTop: 40}}>
@@ -211,7 +249,10 @@ export default class JunaReitti extends Component<{}> {
                 <Text>{this.state.lahtoLyhenne}</Text>
                 <Text>{this.state.tuloAsema}</Text>
                 <Text>{this.state.tuloLyhenne}</Text>*/}
-
+                <Button
+                    onPress={() => this._requestPermission()}
+                    title="Sijainti"
+                />
                 <List>
                     <FlatList
                         data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
