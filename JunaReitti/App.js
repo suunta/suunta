@@ -50,6 +50,8 @@ export default class JunaReitti extends Component<{}> {
                     }
 
                     const trainType = juna.commuterLineID !== "" ? juna.commuterLineID : juna.trainType + juna.trainNumber;
+                
+                    let raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(trainType) ? 1 : 0;
 
                     //juna.commuterLineID
                     //juna.filter((row) => row.commuterLineID === "" ? row.trainType : row.commuterLineID)
@@ -58,7 +60,7 @@ export default class JunaReitti extends Component<{}> {
                             tunnus: trainType,
                             lahtoPvm: fetchDepDate,
                             lahtoAika: finalDepDate,
-                            lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack,
+                            lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[raideIndex].commercialTrack,
                             tuloAika: finalArrDate,
                             matkaAika: traveltime
                         }
