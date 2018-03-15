@@ -4,6 +4,7 @@ import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Permissions from 'react-native-permissions';
+import geolib from 'geolib';
 
 export default class JunaReitti extends Component {
 
@@ -23,7 +24,8 @@ export default class JunaReitti extends Component {
             locationPermission: '',
             latitude: null,
             longitude: null,
-            error: null
+            error: null,
+            lahinAsema: ''
         };
     }
 
@@ -146,7 +148,9 @@ export default class JunaReitti extends Component {
                         id: asema.stationUICCode,
                         stationShortCode: asema.stationShortCode,
                         stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
-                        passengerTraffic: asema.passengerTraffic
+                        passengerTraffic: asema.passengerTraffic,
+                        longitude: asema.longitude,
+                        latitude: asema.latitude
                     }
                 })
             )
@@ -200,7 +204,7 @@ export default class JunaReitti extends Component {
         );
     }
 
-    _requestPermission = () => {
+    _reguestPermissionGetLocation = () => {
         
         if (this.state.locationPermission =! 'authorized') {
             Permissions.request('location').then(response => {
@@ -219,12 +223,30 @@ export default class JunaReitti extends Component {
                     longitude: position.coords.longitude,
                     error: null,
                   },() => {
-                        console.log(this.state.latitude)
-                        console.log(this.state.longitude)
+                        
+                        let nykyinenSijainti = {"paikka": {latitude: this.state.latitude, longitude: this.state.longitude}}
+
+                        //Haetaan asemien sijainnit ja formatoidaan ne oikeaan muotoon
+                        let haeAsemaSijainnit = {};
+                        
+                        for (var asema in this.state.asemat) {
+                            let nimi = this.state.asemat[asema].stationName;
+                            
+                            haeAsemaSijainnit[nimi] = {latitude: this.state.asemat[asema].latitude, longitude: this.state.asemat[asema].longitude}
+                        }
+                        
+                        //Verrataan omaa sijaintia juna-asemien sijaintiin
+                        let result = geolib.findNearest(nykyinenSijainti['paikka'], haeAsemaSijainnit, 0) 
+                        
+                        this.setState({lahinAsema: result.key},() => {
+                            console.log(this.state.lahinAsema)
+                            this.handleDepartInput(this.state.lahinAsema)
+                        });
+                       
                     });
                 },
                 (error) => {console.log(error.message); this.setState({ error: error.message })},
-                { enableHighAccuracy: true, timeout: 20000 },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
             );
     }
 
@@ -250,7 +272,7 @@ export default class JunaReitti extends Component {
                 <Text>{this.state.tuloAsema}</Text>
                 <Text>{this.state.tuloLyhenne}</Text>*/}
                 <Button
-                    onPress={() => this._requestPermission()}
+                    onPress={() => this._reguestPermissionGetLocation()}
                     title="Sijainti"
                 />
                 <List>

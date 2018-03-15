@@ -8,6 +8,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "geolib": "^2.0.24",
     "react": "16.2.0",
     "react-autosuggest": "^9.3.4",
     "react-native": "0.53.0",
