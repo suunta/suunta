@@ -227,16 +227,16 @@ export default class JunaReitti extends Component {
                         let nykyinenSijainti = {"paikka": {latitude: this.state.latitude, longitude: this.state.longitude}}
 
                         //Haetaan asemien sijainnit ja formatoidaan ne oikeaan muotoon
-                        let haeAsemaSijainnit = {};
+                        let asemaSijainnit = {};
                         
                         for (var asema in this.state.asemat) {
                             let nimi = this.state.asemat[asema].stationName;
                             
-                            haeAsemaSijainnit[nimi] = {latitude: this.state.asemat[asema].latitude, longitude: this.state.asemat[asema].longitude}
+                            asemaSijainnit[nimi] = {latitude: this.state.asemat[asema].latitude, longitude: this.state.asemat[asema].longitude}
                         }
                         
                         //Verrataan omaa sijaintia juna-asemien sijaintiin
-                        let result = geolib.findNearest(nykyinenSijainti['paikka'], haeAsemaSijainnit, 0) 
+                        let result = geolib.findNearest(nykyinenSijainti['paikka'], asemaSijainnit, 0) 
                         
                         this.setState({lahinAsema: result.key},() => {
                             console.log(this.state.lahinAsema)
