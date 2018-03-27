@@ -32,7 +32,9 @@ export default class JunaReitti extends Component<{}> {
         let timeToReturn = '';
         let poikkeus = false;
 
-        if (liveEstimateArrDepTime.toString() === 'Invalid Date') {
+        // Jos poikkeusaikaa ei ole, palautetaan aikataulun mukainen aika
+        // Jos poikkeusajan ja aikatauluajan erotus on alle minuutin suuntaan tai toiseen, palautetaan aikataulun mukainen aika
+        if (liveEstimateArrDepTime.toString() === 'Invalid Date' || Math.abs(liveEstimateArrDepTime - scheduledArrDepTime < 60000)) {
             timeToReturn = scheduledArrDepTime;
             console.log('Ei poikkeusta, aika : ' + timeToReturn);
         } else {
@@ -167,6 +169,7 @@ export default class JunaReitti extends Component<{}> {
         };
 
     /*
+
     handleInput = (formName, userInput) => {
         console.log(userInput);
         for (let asema in this.state.asemat) {
