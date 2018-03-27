@@ -246,7 +246,7 @@ export default class JunaReitti extends Component {
                     });
                 },
                 (error) => {console.log(error.message); this.setState({ error: error.message })},
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+                { enableHighAccuracy: true, timeout: 10000 },
             );
     }
 
@@ -264,7 +264,7 @@ export default class JunaReitti extends Component {
             <View style={{flex: 1, paddingTop: 0}}>
 
                 <View style={styles.inputContainer}>
-                <Input placeholder="Lähtöasema" userInput={this.handleDepartInput}/>
+                <Input placeholder="Lähtöasema" userInput={this.handleDepartInput} defaultValue={this.state.lahinAsema}/>
                 <Input placeholder="Tuloasema" userInput={this.handleDestInput}/>
                 </View>
                 {/*<Text>{this.state.lahtoAsema}</Text>
