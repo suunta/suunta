@@ -5,6 +5,7 @@ import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Permissions from 'react-native-permissions';
 import geolib from 'geolib';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class JunaReitti extends Component {
 
@@ -25,7 +26,8 @@ export default class JunaReitti extends Component {
             latitude: null,
             longitude: null,
             error: null,
-            lahinAsema: ''
+            lahinAsema: '',
+            lahtoInput: '',
         };
     }
 
@@ -113,6 +115,10 @@ export default class JunaReitti extends Component {
 
     handleDepartInput = (userInput) => {
         userInput = userInput.trim();
+        console.log(userInput);
+        this.setState({
+            lahtoInput: userInput,
+        })
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
                 this.setState({
@@ -236,17 +242,14 @@ export default class JunaReitti extends Component {
                         }
                         
                         //Verrataan omaa sijaintia juna-asemien sijaintiin
-                        let result = geolib.findNearest(nykyinenSijainti['paikka'], asemaSijainnit, 0) 
-                        
-                        this.setState({lahinAsema: result.key},() => {
-                            console.log(this.state.lahinAsema)
-                            this.handleDepartInput(this.state.lahinAsema)
-                        });
-                       
+                        let result = geolib.findNearest(nykyinenSijainti['paikka'], asemaSijainnit, 0);
+
+                        console.log('Kutsutaan handleDeparttia parametrilla: ' + result.key);
+                        this.handleDepartInput(result.key);
                     });
                 },
                 (error) => {console.log(error.message); this.setState({ error: error.message })},
-                { enableHighAccuracy: true, timeout: 10000 },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 100 },
             );
     }
 
@@ -264,14 +267,16 @@ export default class JunaReitti extends Component {
             <View style={{flex: 1, paddingTop: 0}}>
 
                 <View style={styles.inputContainer}>
-                <Input placeholder="Lähtöasema" userInput={this.handleDepartInput} defaultValue={this.state.lahinAsema}/>
+                <Input placeholder="Lähtöasema" userInput={this.handleDepartInput} val={this.state.lahtoInput}/>
                 <Input placeholder="Tuloasema" userInput={this.handleDestInput}/>
                 </View>
                 {/*<Text>{this.state.lahtoAsema}</Text>
                 <Text>{this.state.lahtoLyhenne}</Text>
                 <Text>{this.state.tuloAsema}</Text>
                 <Text>{this.state.tuloLyhenne}</Text>*/}
-                <Button
+                <Icon
+                    name={'location-on'}
+                    size={26}
                     onPress={() => this._reguestPermissionGetLocation()}
                     title="Sijainti"
                 />
