@@ -8,7 +8,6 @@ import JunaReitti from './JunaReitti';
 import {StackNavigator} from 'react-navigation';
 
 export default class App extends Component<{}> {
-
     constructor(props) {
         super(props);
 
@@ -19,13 +18,13 @@ export default class App extends Component<{}> {
     
     
      render() {
-    console.log("Hello");
     return <RootStack />;
   }
 }
 
 
 class HomeScreen extends React.Component {
+    static navigationOptions = { title: 'Welcome', header: null };
   render() {
       return ( 
             <View style={{ height: 50000}} >
