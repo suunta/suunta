@@ -1,11 +1,10 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react-native";
-import {List, ListItem} from "react-native-elements";
+import {List, ListItem, Icon} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Permissions from 'react-native-permissions';
 import geolib from 'geolib';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class JunaReitti extends Component {
 
@@ -276,6 +275,7 @@ export default class JunaReitti extends Component {
                 <Text>{this.state.tuloLyhenne}</Text>*/}
                 <Icon
                     name={'location-on'}
+                    type={'FontAwesome'}
                     size={26}
                     onPress={() => this._reguestPermissionGetLocation()}
                     title="Sijainti"
