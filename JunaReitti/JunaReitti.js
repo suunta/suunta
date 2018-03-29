@@ -8,7 +8,6 @@ export default class JunaReitti extends Component<{}> {
 
     constructor(props) {
         super(props);
-
         this.state = {
             data: [],
             isLoading: true,
@@ -206,14 +205,13 @@ export default class JunaReitti extends Component<{}> {
             
                 <View style1={{flex: 1, paddingTop: 0}}>
                     <View style={styles.inputContainer}>
-                        <Input placeholder="Lähtöasema" userInput={this.handleDepartInput}/>
-                        <Input placeholder="Tuloasema" userInput={this.handleDestInput}/>
+                        <Text>{this.props.lahtoasema}</Text>
+                        <Text>{this.props.tuloasema}</Text>
                     </View>
                     {/*<Text>{this.state.lahtoAsema}</Text>
                     <Text>{this.state.lahtoLyhenne}</Text>
                     <Text>{this.state.tuloAsema}</Text>
                     <Text>{this.state.tuloLyhenne}</Text>*/}
-
                     <List>
                         <FlatList
                             data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
