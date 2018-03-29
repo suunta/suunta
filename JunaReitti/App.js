@@ -19,11 +19,15 @@ export default class JunaReitti extends Component<{}> {
             tuloLyhenne: '',
             asemat: [],
             minimiAika: 0,
+            //depInp: '',
+            //destInp: ''
         };
     }
 
     getArrDepTime(juna, stationShortCode, tyyppi) {
-        const scheduledArrDepTime = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === stationShortCode && row.trainStopping === true && row.type === tyyppi && new Date(row.scheduledTime))[0].scheduledTime);
+        let currentTime = new Date();
+
+        const scheduledArrDepTime = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === stationShortCode && row.trainStopping === true && row.type === tyyppi && new Date(row.scheduledTime)>currentTime)[0].scheduledTime);
         const liveEstimateArrDepTime = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === stationShortCode && row.trainStopping === true && row.type === tyyppi && new Date(row.scheduledTime))[0].liveEstimateTime);
 
         console.log("Aikataulun mukainen aika : " + scheduledArrDepTime);
@@ -106,7 +110,7 @@ export default class JunaReitti extends Component<{}> {
                                 //todo: ei toimi kehäradalla oikein
                                 // lahtoRaide = haettuJuna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack;
 
-								let raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(trainType) ? 1 : 0;
+								let raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
 								
                                 const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
                                 const tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
@@ -173,6 +177,13 @@ export default class JunaReitti extends Component<{}> {
 
 	handleInput = (type, userInput) => {
 			userInput = userInput.trim();
+			userInput = userInput.charAt(0).toUpperCase() + userInput.substr(1).toLowerCase();
+			/*
+			this.setState({
+                depInp: userInput.charAt(0).toUpperCase() + userInput.substr(1).toLowerCase()
+            });
+            */
+
 			console.log(userInput);
 			for (let asema in this.state.asemat) {
 				if (userInput === this.state.asemat[asema].stationName) {
@@ -245,7 +256,7 @@ export default class JunaReitti extends Component<{}> {
     renderItem({item, index}) {
         return (
             <View style={styles.junalista}>
-                <Text style={styles.tunnus}>  {item.tunnus}</Text>
+                <Text>  {item.tunnus}</Text>
                 {
                     // todo: Rumat ternaryt, saisiko näitä nätimpään muotoon? -Mikko
                     item.lahtoPoikkeus === true ? (
