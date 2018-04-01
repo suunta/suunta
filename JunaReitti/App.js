@@ -3,6 +3,7 @@ import {ActivityIndicator, View, Text, StyleSheet, FlatList} from "react-native"
 import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
+import Realm from 'realm';
 
 export default class JunaReitti extends Component<{}> {
 
