@@ -4,6 +4,7 @@ import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Realm from 'realm';
+import {StationSchema} from './StationSchema';
 
 export default class JunaReitti extends Component<{}> {
 
@@ -210,21 +211,46 @@ export default class JunaReitti extends Component<{}> {
 		};
 
     componentDidMount() {
-        fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
+      Realm.open({schema: [StationSchema], deleteRealmIfMigrationNeeded: true})
+      .then(realm => {
+        const stationsCount = realm.objects('Stations').length;
+        if (stationsCount > 0) {
+          console.log(`Stations already in realm! Setting ${stationsCount} stations to state`);
+          const stationArray = Array.from(realm.objects('Stations'));
+          this.setState({
+            isLoading: false,
+            asemat: stationArray
+          });
+        } else {
+          console.log("Stations not in realm, fetching...");
+          fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
             .then((response) => response.json())
             .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
             .then(asemat => asemat.map(asema => {
-                    return {
-                        id: asema.stationUICCode,
-                        stationShortCode: asema.stationShortCode,
-                        stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
-                        passengerTraffic: asema.passengerTraffic
-                    }
-                })
-            )
-            .then(asemat => this.setState({
-            isLoading: false,
-            asemat: asemat}));
+              return {
+                id: asema.stationUICCode,
+                stationShortCode: asema.stationShortCode,
+                stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
+                passengerTraffic: asema.passengerTraffic,
+                longitude: asema.longitude,
+                latitude: asema.latitude
+              }
+            }))
+            .then(asemat => {
+              this.setState({
+                isLoading: false,
+                asemat: asemat
+              });
+              console.log(`Adding ${asemat.length} stations to realm`);
+              asemat.map(asema => {
+                realm.write(() => {
+                  let r = realm.create('Stations', asema);
+                  console.log("Added station to realm: ", JSON.stringify(r));
+                });
+              })
+            });
+        }
+      })
     }
 
     onRefresh = async () => {
