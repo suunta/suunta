@@ -18,7 +18,8 @@ export default class JunaReitti extends Component<{}> {
             lahtoLyhenne: '',
             tuloLyhenne: '',
             asemat: [],
-            minimiAika: 0
+            minimiAika: 0,
+            userInput: ''
         };
     }
 
@@ -81,11 +82,11 @@ export default class JunaReitti extends Component<{}> {
         };
 
     handleInput = (type, userInput) => {
-        userInput = userInput.trim();
+        userInput.trim();
         console.log(userInput);
+        //console.log(this.state.userInput);
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
-                console.log("ensimmäinen loop " + userInput);
                 if (type === "lahto") {
                     this.setState({
                         lahtoAsema: this.state.asemat[asema].stationName,
@@ -154,7 +155,7 @@ export default class JunaReitti extends Component<{}> {
     renderItem({item, index}) {
         return (
             <View style={styles.junalista}>
-                <Text>  {item.tunnus}</Text>
+                <Text style={styles.tunnus}>  {item.tunnus}</Text>
                 <Text>{item.lahtoAika}</Text>
                 <Text>{item.lahtoRaide}</Text>
                 <Text>{item.tuloAika}</Text>
@@ -177,7 +178,7 @@ export default class JunaReitti extends Component<{}> {
 
                 <View style={styles.inputContainer}>
                 <Input placeholder="Lähtöasema" name="tulo" userInput={this.handleInput}/>
-                <Input placeholder="Tuloasema" name="lahto" userInput={this.handleInput}/>
+                <Input asemat={this.state.asemat} placeholder="Tuloasema" name="lahto" userInput={this.handleInput}/>
 
                 </View>
                 {/*<Text>{this.state.lahtoAsema}</Text>
@@ -195,14 +196,6 @@ export default class JunaReitti extends Component<{}> {
                         refreshing={this.state.isRefreshing}
                     />
                 </List>
-                {/*
-                    <ListView
-                        dataSource={this.state.dataSource}
-                        renderRow={(rowData) =>
-                            <Text>{rowData.id} | {rowData.tunnus} | {rowData.lahtoAika} | {rowData.lahtoRaide} | {rowData.tuloAika} </Text>}
-                    />
-                </List>
-                */}
             </View>
         );
     }
@@ -229,11 +222,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     tunnus: {
-        height: 22,
-        width: 22,
-        borderRadius: 11,
-        backgroundColor: '#EEEEEE',
         justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
 });
