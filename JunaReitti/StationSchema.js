@@ -1,13 +1,16 @@
 export const StationSchema = {
-  name: 'Stations',
+  name: 'Station',
+    primaryKey: 'id',
   properties: {
+    id: 'int', // stationUICCode
     passengerTraffic: 'bool',
-//    type: 'string',
     stationName: 'string',
     stationShortCode: 'string',
-    id: 'int', // stationUICCode
-//    countryCode: 'string',
     longitude: 'float',
     latitude: 'float'
+
+    //type: 'string',
+    //countryCode: 'string',
+
   }
 }

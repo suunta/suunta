@@ -5,6 +5,7 @@ import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Realm from 'realm';
 import {StationSchema} from './StationSchema';
+import {StationGroupSchema} from "./StationGroupSchema";
 
 export default class JunaReitti extends Component<{}> {
 
@@ -211,44 +212,54 @@ export default class JunaReitti extends Component<{}> {
 		};
 
     componentDidMount() {
-      Realm.open({schema: [StationSchema], deleteRealmIfMigrationNeeded: true})
+        // Lisätään/tarkistetaan asemien tiedot
+      Realm.open({schema: [StationSchema, StationGroupSchema], deleteRealmIfMigrationNeeded: true})
       .then(realm => {
-        const stationsCount = realm.objects('Stations').length;
-        if (stationsCount > 0) {
-          console.log(`Stations already in realm! Setting ${stationsCount} stations to state`);
-          const stationArray = Array.from(realm.objects('Stations'));
-          this.setState({
-            isLoading: false,
-            asemat: stationArray
-          });
-        } else {
-          console.log("Stations not in realm, fetching...");
-          fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
-            .then((response) => response.json())
-            .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
-            .then(asemat => asemat.map(asema => {
-              return {
-                id: asema.stationUICCode,
-                stationShortCode: asema.stationShortCode,
-                stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
-                passengerTraffic: asema.passengerTraffic,
-                longitude: asema.longitude,
-                latitude: asema.latitude
-              }
-            }))
-            .then(asemat => {
-              this.setState({
-                isLoading: false,
-                asemat: asemat
-              });
-              console.log(`Adding ${asemat.length} stations to realm`);
-              asemat.map(asema => {
-                realm.write(() => {
-                  let r = realm.create('Stations', asema);
-                  console.log("Added station to realm: ", JSON.stringify(r));
+        const stationsCount = realm.objects('Station').length;
+        if (stationsCount === 0) {
+            console.log('*** Asemia ei tietokannassa, haetaan ja lisätään ***');
+            fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
+                .then((response) => response.json())
+                .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
+                .then(asemat => asemat.map(asema => {
+                    return {
+                        id: asema.stationUICCode,
+                        stationShortCode: asema.stationShortCode,
+                        stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
+                        passengerTraffic: asema.passengerTraffic,
+                        longitude: asema.longitude,
+                        latitude: asema.latitude
+                    }
+                }))
+                .then(asemat => {
+                    this.setState({
+                        asemat: asemat,
+                        isLoading: false
+                    });
+
+                    console.log('*** Lisätään hakuajankohta ja asemat Realmiin');
+                    realm.write(() => {
+                        let updateTime = realm.create('StationGroup', {id: 1, lastUpdated: new Date(), stations: asemat})
+                    })
                 });
-              })
-            });
+        }
+
+        if (stationsCount > 0) {
+            // Tarkistetaan viimeisin päivitysmpäivämäärä
+            let stationGroup = Array.from(realm.objects('StationGroup'));
+
+            // Jos data 24 tuntia vanhempaa, päivitetään
+            if (stationGroup[0].lastUpdated.getTime()+86400000 < new Date() ) {
+                console.log('*** Realmin data vanhaa, päivitetään');
+            } else {
+                console.log('*** Asemat on jo Realmissa, asetetaan '+ stationsCount +' asemaa stateen');
+                const stationArray = Array.from(realm.objects('StationGroup'));
+                this.setState({
+                    isLoading: false,
+                    asemat: stationArray.stations
+                });
+            }
+
         }
       })
     }
