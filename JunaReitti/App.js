@@ -4,7 +4,7 @@ import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 
-export default class JunaReitti extends Component<{}> {
+export default class JunaReitti extends Component {
 
     constructor(props) {
         super(props);
