@@ -248,7 +248,7 @@ export default class JunaReitti extends Component {
                     });
                 },
                 (error) => {console.log(error.message); this.setState({ error: error.message })},
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 100 },
+                { enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 },
             );
     }
 
