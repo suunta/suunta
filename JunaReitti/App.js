@@ -211,6 +211,23 @@ export default class JunaReitti extends Component<{}> {
 			}
 		};
 
+	fetchStationsFromAPI = async () => {
+	    let response = await fetch('https://rata.digitraffic.fi/api/v1/metadata/stations');
+	    let data = await response.json();
+	    let asematFiltteroity = data.filter((asema) => asema.passengerTraffic === true);
+	    let asemat = asematFiltteroity.map(asema => {
+            return {
+                id: asema.stationUICCode,
+                stationShortCode: asema.stationShortCode,
+                stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
+                passengerTraffic: asema.passengerTraffic,
+                longitude: asema.longitude,
+                latitude: asema.latitude
+            }
+        });
+	    return asemat;
+    }
+
     componentDidMount() {
         // Lisätään/tarkistetaan asemien tiedot
       Realm.open({schema: [StationSchema, StationGroupSchema], deleteRealmIfMigrationNeeded: true})
@@ -218,19 +235,8 @@ export default class JunaReitti extends Component<{}> {
         const stationsCount = realm.objects('Station').length;
         if (stationsCount === 0) {
             console.log('*** Asemia ei tietokannassa, haetaan ja lisätään ***');
-            fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
-                .then((response) => response.json())
-                .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
-                .then(asemat => asemat.map(asema => {
-                    return {
-                        id: asema.stationUICCode,
-                        stationShortCode: asema.stationShortCode,
-                        stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
-                        passengerTraffic: asema.passengerTraffic,
-                        longitude: asema.longitude,
-                        latitude: asema.latitude
-                    }
-                }))
+
+            this.fetchStationsFromAPI()
                 .then(asemat => {
                     this.setState({
                         asemat: asemat,
@@ -241,7 +247,8 @@ export default class JunaReitti extends Component<{}> {
                     realm.write(() => {
                         let updateTime = realm.create('StationGroup', {id: 1, lastUpdated: new Date(), stations: asemat})
                     })
-                });
+                })
+                .catch(error => console.log(error.message));
         }
 
         if (stationsCount > 0) {
@@ -251,6 +258,21 @@ export default class JunaReitti extends Component<{}> {
             // Jos data 24 tuntia vanhempaa, päivitetään
             if (stationGroup[0].lastUpdated.getTime()+86400000 < new Date() ) {
                 console.log('*** Realmin data vanhaa, päivitetään');
+                this.fetchStationsFromAPI()
+                    .then(asemat => {
+                        this.setState({
+                            asemat: asemat,
+                            isLoading: false
+                        });
+
+                        console.log('** ** ** Tuore hakuajankohta ja tiedot Realmiin');
+                        realm.write(() => {
+                            let updateTime = realm.create('StationGroup', {id: 1, lastUpdated: new Date(), stations: asemat}, true)
+                        })
+                    })
+                    .catch(error => console.log(error.message));
+
+
             } else {
                 console.log('*** Asemat on jo Realmissa, asetetaan '+ stationsCount +' asemaa stateen');
                 const stationArray = Array.from(realm.objects('StationGroup'));
