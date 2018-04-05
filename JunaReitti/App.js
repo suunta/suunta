@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid} from "react-native";
 import {List, ListItem, Icon} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
@@ -167,6 +167,7 @@ export default class JunaReitti extends Component {
             Permissions.check('location').then(response => {
                 // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
                 this.setState({ locationPermission: response })
+                console.log(this.state.locationPermission)
             })
     }
 
@@ -209,47 +210,50 @@ export default class JunaReitti extends Component {
         );
     }
 
-    _reguestPermissionGetLocation = () => {
+    reguestPermissionLocation = () => {
         
-        if (this.state.locationPermission =! 'authorized') {
-            Permissions.request('location').then(response => {
-                // Returns once the user has chosen to 'allow' or to 'not allow' access
-                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-                this.setState({ locationPermission: response })
-            })
-            console.log(this.state.locationPermission)
-        }    
+        Permissions.request('location').then(response => {
+            // Returns once the user has chosen to 'allow' or to 'not allow' access
+            // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+            this.setState({ locationPermission: response })
+            this.getClosestStation()
+        })  
+    }
 
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                  console.log(position);
-                  this.setState({
+    getClosestStation = () => {
+        
+        ToastAndroid.show('Haetaan sijaintia', ToastAndroid.SHORT)
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log(position);
+                this.setState({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
                     error: null,
-                  },() => {
-                        
-                        let nykyinenSijainti = {"paikka": {latitude: this.state.latitude, longitude: this.state.longitude}}
+                },() => {
+                    
+                    let nykyinenSijainti = {"paikka": {latitude: this.state.latitude, longitude: this.state.longitude}}
 
-                        //Haetaan asemien sijainnit ja formatoidaan ne oikeaan muotoon
-                        let asemaSijainnit = {};
+                    //Haetaan asemien sijainnit ja formatoidaan ne oikeaan muotoon
+                    let asemaSijainnit = {};
+                    
+                    for (var asema in this.state.asemat) {
+                        let nimi = this.state.asemat[asema].stationName;
                         
-                        for (var asema in this.state.asemat) {
-                            let nimi = this.state.asemat[asema].stationName;
-                            
-                            asemaSijainnit[nimi] = {latitude: this.state.asemat[asema].latitude, longitude: this.state.asemat[asema].longitude}
-                        }
-                        
-                        //Verrataan omaa sijaintia juna-asemien sijaintiin
-                        let result = geolib.findNearest(nykyinenSijainti['paikka'], asemaSijainnit, 0);
+                        asemaSijainnit[nimi] = {latitude: this.state.asemat[asema].latitude, longitude: this.state.asemat[asema].longitude}
+                    }
+                    
+                    //Verrataan omaa sijaintia juna-asemien sijaintiin
+                    let result = geolib.findNearest(nykyinenSijainti['paikka'], asemaSijainnit, 0);
 
-                        console.log('Kutsutaan handleDeparttia parametrilla: ' + result.key);
-                        this.handleDepartInput(result.key);
-                    });
-                },
-                (error) => {console.log(error.message); this.setState({ error: error.message })},
-                { enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 },
-            );
+                    console.log('Kutsutaan handleDeparttia parametrilla: ' + result.key);
+                    this.handleDepartInput(result.key);
+                });
+            },
+            (error) => {console.log(error.message); this.setState({ error: error.message }); ToastAndroid.show(error.message, ToastAndroid.SHORT);},
+            { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
+        );
     }
 
     render() {
@@ -277,7 +281,7 @@ export default class JunaReitti extends Component {
                     name={'location-on'}
                     type={'FontAwesome'}
                     size={26}
-                    onPress={() => this._reguestPermissionGetLocation()}
+                    onPress={ () => this.reguestPermissionLocation() }
                     title="Sijainti"
                 />
                 <List>
