@@ -1,6 +1,5 @@
 import React, {Component} from "react";
-// import {TextInput, View, StyleSheet, Text} from "react-native";
-import AutoSuggest from 'react-native-autosuggest';
+import {StyleSheet, TextInput} from "react-native";
 
 class Input extends React.Component {
 
@@ -9,30 +8,19 @@ class Input extends React.Component {
     };
 
     render() {
+
         return (
-                <AutoSuggest
-                    placeholder={this.props.placeholder}
-                    onChangeText={this.inputHandler}
-                    terms={['Pasila', 'Helsinki']}
-                    containerStyles={{
-                        width: '40%',
-                        marginLeft: 10,
-                        marginRight: 10
-                    }}
-                    otherTextInputProps={{ editable: true }}
-                />
-        );
+        <TextInput placeholder={this.props.placeholder} style={styles.inputField} onChangeText={this.inputHandler}/>
+        )
     }
-
 }
-{/*<TextInput placeholder={this.props.placeholder} style={styles.inputField} onChangeText={this.inputHandler}/>*/}
 
-{/*<AutoSuggest*/}
-{/*placeholder={this.props.placeholder}*/}
-{/*style={styles.inputField}*/}
-{/*onChangeText={this.inputHandler}*/}
-{/*terms={this.state.asemaLista}*/}
-{/*/>*/}
-
+const styles = StyleSheet.create({
+    inputField: {
+        width: '40%',
+        marginLeft: 10,
+        marginRight: 10
+    }
+});
 
 export default Input;
