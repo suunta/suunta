@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert} from "react-native";
 import {List, ListItem, Icon} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
@@ -210,14 +210,38 @@ export default class JunaReitti extends Component {
         );
     }
 
-    reguestPermissionLocation = () => {
+    alertForLocationPermission() {
         
-        Permissions.request('location').then(response => {
-            // Returns once the user has chosen to 'allow' or to 'not allow' access
-            // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-            this.setState({ locationPermission: response })
-            this.getClosestStation()
-        })  
+        if (this.state.locationPermission =! 'authorized') {
+            Alert.alert(
+            'JunaReitti haluaa käyttää sijaintiasi',
+            'Oikeus sijaintiin tarvitaan lähimmän aseman selvittämiseksi',
+            [
+                {
+                text: 'Ei',
+                onPress: () => console.log('Permission denied'),
+                style: 'cancel',
+                },
+                this.state.locationPermission === 'undetermined'
+                ? { text: 'OK', onPress: this.reguestPermissionLocation }
+                : { text: 'Avaa asetukset', onPress: Permissions.openSettings },
+            ],
+            )
+        }
+        this.reguestPermissionLocation()    
+    }
+
+    reguestPermissionLocation = () => {
+       
+        if (this.state.locationPermission =! 'authorized') {
+            Permissions.request('location').then(response => {
+                // Returns once the user has chosen to 'allow' or to 'not allow' access
+                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+                this.setState({ locationPermission: response })
+                this.getClosestStation()
+            })  
+        }
+        this.getClosestStation()    
     }
 
     getClosestStation = () => {
@@ -281,7 +305,7 @@ export default class JunaReitti extends Component {
                     name={'location-on'}
                     type={'FontAwesome'}
                     size={26}
-                    onPress={ () => this.reguestPermissionLocation() }
+                    onPress={ () => this.alertForLocationPermission() }
                     title="Sijainti"
                 />
                 <List>
