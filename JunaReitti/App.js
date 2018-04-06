@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, StyleSheet, FlatList} from "react-native";
 import {List, ListItem} from "react-native-elements";
-import Input from "./Components/Input";
+import Autocomplete from "./Components/Autocomplete";
 import sortBy from "lodash/sortBy";
 
 export default class JunaReitti extends Component<{}> {
@@ -24,6 +24,10 @@ export default class JunaReitti extends Component<{}> {
     }
 
     fetchTrainData = () => {
+
+        console.log(this.state.lahtoAsema + 'LAHTO');
+
+        console.log(this.state.tuloAsema + 'TULO');
 
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             this.setState({
@@ -84,7 +88,7 @@ export default class JunaReitti extends Component<{}> {
     handleInput = (type, userInput) => {
         userInput.trim();
         console.log(userInput);
-        //console.log(this.state.userInput);
+        console.log(this.state.userInput);
         for (let asema in this.state.asemat) {
             if (userInput === this.state.asemat[asema].stationName) {
                 if (type === "lahto") {
@@ -176,26 +180,21 @@ export default class JunaReitti extends Component<{}> {
         return (
             <View style={{flex: 1, paddingTop: 0}}>
 
-                <View style={styles.inputContainer}>
-                <Input placeholder="Lähtöasema" name="tulo" userInput={this.handleInput}/>
-                <Input asemat={this.state.asemat} placeholder="Tuloasema" name="lahto" userInput={this.handleInput}/>
-
-                </View>
-                {/*<Text>{this.state.lahtoAsema}</Text>
-                <Text>{this.state.lahtoLyhenne}</Text>
+                <Text>{this.state.lahtoAsema}</Text>
                 <Text>{this.state.tuloAsema}</Text>
-                <Text>{this.state.tuloLyhenne}</Text>*/}
+                <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput}/>
+                <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
 
-                <List>
-                    <FlatList
-                        data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
-                        keyExtractor = {item => item.id.toString()}
-                        ListHeaderComponent = {this.renderHeader}
-                        renderItem = {this.renderItem}
-                        onRefresh={this.onRefresh}
-                        refreshing={this.state.isRefreshing}
-                    />
-                </List>
+                {/*<List>*/}
+                    {/*<FlatList*/}
+                        {/*data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}*/}
+                        {/*keyExtractor = {item => item.id.toString()}*/}
+                        {/*ListHeaderComponent = {this.renderHeader}*/}
+                        {/*renderItem = {this.renderItem}*/}
+                        {/*onRefresh={this.onRefresh}*/}
+                        {/*refreshing={this.state.isRefreshing}*/}
+                    {/*/>*/}
+                {/*</List>*/}
             </View>
         );
     }
@@ -208,7 +207,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     junalista: {
-        flex: 1,
+        backgroundColor: '#fff',
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
