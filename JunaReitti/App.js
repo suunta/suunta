@@ -179,22 +179,18 @@ export default class JunaReitti extends Component<{}> {
 
         return (
             <View style={{flex: 1, paddingTop: 0}}>
-
-                <Text>{this.state.lahtoAsema}</Text>
-                <Text>{this.state.tuloAsema}</Text>
+              <FlatList style={styles.listContainer}
+                data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
+                keyExtractor = {item => item.id.toString()}
+                ListHeaderComponent = {this.renderHeader}
+                renderItem = {this.renderItem}
+                onRefresh={this.onRefresh}
+                refreshing={this.state.isRefreshing}
+              />
+              <View style={styles.autoContainer}>
                 <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput}/>
                 <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
-
-                {/*<List>*/}
-                    {/*<FlatList*/}
-                        {/*data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}*/}
-                        {/*keyExtractor = {item => item.id.toString()}*/}
-                        {/*ListHeaderComponent = {this.renderHeader}*/}
-                        {/*renderItem = {this.renderItem}*/}
-                        {/*onRefresh={this.onRefresh}*/}
-                        {/*refreshing={this.state.isRefreshing}*/}
-                    {/*/>*/}
-                {/*</List>*/}
+              </View>
             </View>
         );
     }
@@ -223,5 +219,15 @@ const styles = StyleSheet.create({
     tunnus: {
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    autoContainer: {
+        position:'absolute',
+        top: 0,
+        flexDirection: 'row',
+    },
+    listContainer: {
+        position:'absolute',
+        top: 42,
+        width: '100%'
     },
 });

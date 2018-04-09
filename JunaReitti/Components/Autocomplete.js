@@ -55,8 +55,10 @@ class AutoComplete extends React.Component {
         return (
             <Autocomplete
                 autoCapitalize="none"
-                containerStyle={styles.autocompleteContainer}
-                data={stations.length === 1 && comp(query, stations[0]) ? [] : stations}
+                containerStyle={{width: '40%'}}
+                inputContainerStyle={{borderRightWidth:0,borderLeftWidth:0}}
+                underlineColorAndroid='transparent'
+                data={stations.length && comp(query, stations[0]) ? [] : stations}
                 defaultValue={query}
                 onChangeText={this.inputHandler}
                 placeholder={this.props.placeholder}
@@ -76,11 +78,6 @@ class AutoComplete extends React.Component {
 // autocomplete input will disappear on text input.
 
 const styles = StyleSheet.create({
-    autocompleteContainer: {
-        flex: 1,
-        position: 'absolute',
-        width: '40%'
-    },
     itemText: {
         fontSize: 15,
         margin: 2
