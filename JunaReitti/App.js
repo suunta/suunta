@@ -282,7 +282,6 @@ export default class JunaReitti extends Component {
                 <Text>{this.state.tuloLyhenne}</Text>*/}
                 <Icon
                     name={'location-on'}
-                    type={'FontAwesome'}
                     size={26}
                     onPress={ () => this.reguestPermissionLocation() }
                     title="Sijainti"
