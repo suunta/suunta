@@ -1,6 +1,6 @@
 import React, {Component} from "react";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList} from "react-native";
-import {List, ListItem} from "react-native-elements";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react-native";
+import {List, ListItem, Icon} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 
@@ -168,6 +168,13 @@ export default class JunaReitti extends Component<{}> {
         });
 
     };
+    
+    reverseRoute() {
+      this.setState({
+        lahtoLyhenne: this.state.tuloLyhenne,
+        tuloLyhenne: this.state.lahtoLyhenne
+      })
+    }  
 
     renderHeader() {
         return (
@@ -204,9 +211,31 @@ export default class JunaReitti extends Component<{}> {
         return (
             
                 <View style1={{flex: 1, paddingTop: 0}}>
+                   
                     <View style={styles.inputContainer}>
-                        <Text>{this.props.lahtoasema}</Text>
-                        <Text>{this.props.tuloasema}</Text>
+                        <Text>{this.state.lahtoLyhenne}</Text>
+           <Button
+          title="Settings"
+          onPress={() => this.props.navigation.navigate('Settings')}
+        />
+        <Button
+          title="Reverse"
+          onPress={() => this.reverseRoute()}
+        />
+        <Icon
+                    name={'3d-rotation'}
+                    size={26}
+                    onPress={() => this.props.navigation.navigate('Settings')}
+                    title="Asetukset"
+                />
+                      <Icon
+                    name={'swap'}
+                    type={'Entypo'}
+                    size={26}
+                    onPress={() => this.reverseRoute()}
+                    title="Swap"
+                />
+                        <Text>{this.state.tuloLyhenne}</Text>
                     </View>
                     {/*<Text>{this.state.lahtoAsema}</Text>
                     <Text>{this.state.lahtoLyhenne}</Text>

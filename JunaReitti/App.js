@@ -13,7 +13,7 @@ export default class App extends Component {
         super(props);
 
         this.state = {
-            asemaValit: [['HKI', 'PSL'], ['HKI', 'KER'], ['HKI', 'TPE']],
+            asemaValit: [['HKI', 'PSL'], ['HKI', 'KE'], ['HKI', 'TPE']],
             asemat: []
         };
     }
@@ -25,17 +25,13 @@ export default class App extends Component {
 }
 
 class HomeScreen extends React.Component {
-    static navigationOptions = { title: 'Welcome', header: null };
+    static navigationOptions = { header: null };
   render() {
     const reitit = this.props.screenProps.asemaValit.map((reitti, index) => (
-      <JunaReitti key={index} lahtoasema={reitti[0]} tuloasema={reitti[1]} />
+      <JunaReitti key={index} lahtoasema={reitti[0]} tuloasema={reitti[1]} navigation={this.props.navigation} />
     ));
       return ( 
       <View style={{ flex: 1}} >
-                <Button
-          title="Go to Settings"
-          onPress={() => this.props.navigation.navigate('Settings')}
-        />
                 <Swiper showsButtons={false}>
                   {reitit}
                  </Swiper>
