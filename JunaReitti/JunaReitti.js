@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react-native";
-import {List, ListItem, Icon} from "react-native-elements";
 import Input from "./Components/Input";
+import FAIcon from 'react-native-vector-icons/FontAwesome';
+import MatIcon from 'react-native-vector-icons/MaterialIcons';
 import sortBy from "lodash/sortBy";
 
 export default class JunaReitti extends Component<{}> {
@@ -12,8 +13,8 @@ export default class JunaReitti extends Component<{}> {
             data: [],
             isLoading: true,
             isRefreshing: false,
-            lahtoAsema: [],
-            tuloAsema: [],
+            lahtoAsema: '',
+            tuloAsema: '',
             lahtoLyhenne: this.props.lahtoasema,
             tuloLyhenne: this.props.tuloasema,
             asemat: [],
@@ -32,7 +33,7 @@ export default class JunaReitti extends Component<{}> {
             let currentTimeISO = currentTime.toISOString();
             let currentTimeISODate = new Date(currentTimeISO);
 
-            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.props.tuloasema + '?limit=15&startDate=' + currentTimeISO)
+            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=15&startDate=' + currentTimeISO)
                 .then((response) => response.json())
                 .then(junat => junat.map(juna => {
 
@@ -75,89 +76,44 @@ export default class JunaReitti extends Component<{}> {
         }
         };
 
-    /*
-    handleInput = (formName, userInput) => {
-        console.log(userInput);
-        for (let asema in this.state.asemat) {
-            if (userInput === this.state.asemat[asema].stationName) {
-                console.log("ensimmäinen loop " + userInput);
-                if(formName === "lahto") {
-                    this.setState({
-                            lahtoAsema: this.state.asemat[asema].stationName,
-                            lahtoLyhenne: this.state.asemat[asema].stationShortCode
-                        },
-                        () => {
-                            this.fetchTrainData();
-                        });
-                }
-                } else if(formName === "tulo") {
-                this.setState({
-                        tuloAsema: this.state.asemat[asema].stationName,
-                        tuloLyhenne: this.state.asemat[asema].stationShortCode
-                    },
-                    () => {
-                        this.fetchTrainData();
-                    });
-            }
-        }
-    };
-    */
-
-    handleDepartInput = (userInput) => {
-        userInput = userInput.trim();
-        for (let asema in this.state.asemat) {
-            if (userInput === this.state.asemat[asema].stationName) {
-                this.setState({
-                        lahtoAsema: this.state.asemat[asema].stationName,
-                        lahtoLyhenne: this.state.asemat[asema].stationShortCode
-                    }, () => {
-                        this.fetchTrainData();
-                    });
-            }
-        }
-    };
-
-    handleDestInput = (userInput) => {
-        userInput = userInput.trim();
-        for (let asema in this.state.asemat) {
-            if (userInput === this.state.asemat[asema].stationName) {
-                this.setState({
-                    tuloAsema: this.state.asemat[asema].stationName,
-                    tuloLyhenne: this.state.asemat[asema].stationShortCode
-                }, () => {
-                    this.fetchTrainData();
-                });
-            }
-        }
-    };
-
     componentDidMount() {
         fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
             .then((response) => response.json())
             .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
             .then(asemat => asemat.map(asema => {
+                    if (asema.stationShortCode === this.state.lahtoLyhenne) {
+                      this.setState({lahtoAsema: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName});
+                      console.log("löytyi listasta sama lahtolyhenne, se on " + this.state.lahtoLyhenne);
+                      console.log("eli stateen asetetaan " + (asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName));
+                    } else if (asema.stationShortCode === this.state.tuloLyhenne) {
+                      this.setState({tuloAsema: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName});
+                      console.log("löytyi listasta sama tulolyhenne, se on " + this.state.tuloLyhenne);
+                      console.log("eli stateen asetetaan " + (asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName));
+                    }
                     return {
                         id: asema.stationUICCode,
                         stationShortCode: asema.stationShortCode,
                         stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
                         passengerTraffic: asema.passengerTraffic
                     }
-                })
-            )
-            // .then(asemat => console.log(asemat))
-            .then(asemat => this.setState({
-            isLoading: false,
-            asemat: asemat}));
+                    
+            }))
+            .then(asemat => {
+              this.setState({
+                isLoading: false,
+                asemat: asemat
+              }, () => {
+                this.fetchTrainData();
+              })
+            });
     
-        this.fetchTrainData();
+        
     }
 
     onRefresh = async () => {
         this.setState({
             isRefreshing: true
         });
-
-        //await this.fetchTrainData();
 
         await this.setState({
             data: this.fetchTrainData()
@@ -170,10 +126,14 @@ export default class JunaReitti extends Component<{}> {
     };
     
     reverseRoute() {
-      this.setState({
-        lahtoLyhenne: this.state.tuloLyhenne,
-        tuloLyhenne: this.state.lahtoLyhenne
-      })
+      this.setState(prevState => ({
+        lahtoLyhenne: prevState.tuloLyhenne,
+        tuloLyhenne: prevState.lahtoLyhenne,
+        lahtoAsema:prevState.tuloAsema,
+        tuloAsema: prevState.lahtoAsema
+      }), () => {
+        this.fetchTrainData();
+      });
     }  
 
     renderHeader() {
@@ -209,67 +169,34 @@ export default class JunaReitti extends Component<{}> {
         }
 
         return (
-            
-                <View style1={{flex: 1, paddingTop: 0}}>
-                   
-                    <View style={styles.inputContainer}>
-                        <Text>{this.state.lahtoLyhenne}</Text>
-           <Button
-          title="Settings"
-          onPress={() => this.props.navigation.navigate('Settings')}
-        />
-        <Button
-          title="Reverse"
-          onPress={() => this.reverseRoute()}
-        />
-        <Icon
-                    name={'3d-rotation'}
-                    size={26}
-                    onPress={() => this.props.navigation.navigate('Settings')}
-                    title="Asetukset"
-                />
-                      <Icon
-                    name={'swap'}
-                    type={'Entypo'}
-                    size={26}
-                    onPress={() => this.reverseRoute()}
-                    title="Swap"
-                />
-                        <Text>{this.state.tuloLyhenne}</Text>
-                    </View>
-                    {/*<Text>{this.state.lahtoAsema}</Text>
-                    <Text>{this.state.lahtoLyhenne}</Text>
-                    <Text>{this.state.tuloAsema}</Text>
-                    <Text>{this.state.tuloLyhenne}</Text>*/}
-                    <List>
-                        <FlatList
-                            data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
-                            keyExtractor = {item => item.id.toString()}
-                            ListHeaderComponent = {this.renderHeader}
-                            renderItem = {this.renderItem}
-                            onRefresh={this.onRefresh}
-                            refreshing={this.state.isRefreshing}
-                        />
-                    </List>
-                    {/*
-                        <ListView
-                            dataSource={this.state.dataSource}
-                            renderRow={(rowData) =>
-                                <Text>{rowData.id} | {rowData.tunnus} | {rowData.lahtoAika} | {rowData.lahtoRaide} | {rowData.tuloAika} </Text>}
-                        />
-                    </List>
-                    */}
-                </View>
-                
+          <View style1={{flex: 1, paddingTop: 0}}>
+            <View style={styles.toolbar}>
+              <Text>{this.state.lahtoAsema}</Text>
+              <Text>–</Text>
+              <Text>{this.state.tuloAsema}</Text>
+              <FAIcon name="exchange" size={25} color="black" onPress={() => this.reverseRoute()}/>
+              <FAIcon name="gear" size={25} color="black" onPress={() => this.props.navigation.navigate('Settings')}/>
+              {/*<MatIcon name="location-on" size={25} color="#d3d3d3" />*/}
+            </View>
+            <FlatList
+              data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
+              keyExtractor = {item => item.id.toString()}
+              ListHeaderComponent = {this.renderHeader}
+              renderItem = {this.renderItem}
+              onRefresh={this.onRefresh}
+              refreshing={this.state.isRefreshing}
+            />
+          </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    inputContainer: {
+    toolbar: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: 5
     },
     junalista: {
         flex: 1,

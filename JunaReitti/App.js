@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react-native";
-import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Swiper from 'react-native-swiper';
@@ -13,7 +12,7 @@ export default class App extends Component {
         super(props);
 
         this.state = {
-            asemaValit: [['HKI', 'PSL'], ['HKI', 'KE'], ['HKI', 'TPE']],
+            asemaValit: [['HKI', 'PSL'], ['MLO', 'POH'], ['TPE', 'HKI']],
             asemat: []
         };
     }

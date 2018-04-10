@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, KeyboardAvoidingView} from "react-native";
-import {List, ListItem} from "react-native-elements";
 import Input from "./Components/Input";
 
 export default class Asetukset extends Component {
