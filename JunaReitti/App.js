@@ -25,10 +25,6 @@ export default class JunaReitti extends Component<{}> {
 
     fetchTrainData = () => {
 
-        console.log(this.state.lahtoAsema + 'LAHTO');
-
-        console.log(this.state.tuloAsema + 'TULO');
-
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             this.setState({
                 isRefreshing: true,
@@ -75,9 +71,7 @@ export default class JunaReitti extends Component<{}> {
                         isLoading: false,
                         data: responseJson,
                         isRefreshing: false,
-                    }, function () {
-                        // do something with new state
-                    });
+                    })
                 })
                 .catch((error) => {
                     console.error(error);
