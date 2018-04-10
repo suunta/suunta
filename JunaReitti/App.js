@@ -222,7 +222,7 @@ export default class JunaReitti extends Component<{}> {
 
     renderHeader() {
         return (
-            <View style={styles.junalista}>
+            <View style={styles.junatHeader}>
                 <Text>Tunnus</Text>
                 <Text>Lähtöaika</Text>
                 <Text>Lähtöraide</Text>
@@ -272,6 +272,7 @@ export default class JunaReitti extends Component<{}> {
                 data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
                 keyExtractor = {item => item.id.toString()}
                 ListHeaderComponent = {this.renderHeader}
+                stickyHeaderIndices={[0]}
                 renderItem = {this.renderItem}
                 onRefresh={this.onRefresh}
                 refreshing={this.state.isRefreshing}
@@ -302,8 +303,13 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     junatHeader: {
-        fontSize: 20,
-        fontWeight: 'bold'
+        backgroundColor: '#fff',
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        height: 40,
+        borderBottomWidth: 1,
+        borderBottomColor: '#d3d3d3'
     },
     tunnus: {
         justifyContent: 'center',
@@ -317,6 +323,7 @@ const styles = StyleSheet.create({
     listContainer: {
         position:'absolute',
         top: 42,
+        bottom: 0,
         width: '100%'
     },
     poikkeusAika: {
