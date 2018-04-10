@@ -116,7 +116,7 @@ export default class JunaReitti extends Component<{}> {
                                 console.log("tuloAika : " + tuloAika + " -> " + tuloAikaPrint);
 
                                 // Lasketaan matka-aika, jotta voidaan karsia järjettömät matkat pois
-                                const traveltime = (new Date(lahtoAika) - new Date(tuloAika))/1000;
+                                const traveltime = (new Date(tuloAika) - new Date(lahtoAika))/1000;
                                 console.log("traveltime : " + traveltime);
 
                                 if (this.state.minimiAika > traveltime) {
