@@ -19,8 +19,6 @@ export default class JunaReitti extends Component<{}> {
             tuloLyhenne: '',
             asemat: [],
             minimiAika: 0,
-            //depInp: '',
-            //destInp: ''
         };
     }
 
@@ -107,9 +105,6 @@ export default class JunaReitti extends Component<{}> {
                                 lahtoAika = lahtoAikaObj.aika;
                                 tuloAika = tuloAikaObj.aika;
 
-                                //todo: ei toimi kehäradalla oikein
-                                // lahtoRaide = haettuJuna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[0].commercialTrack;
-
 								let raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
 								
                                 const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
@@ -150,19 +145,11 @@ export default class JunaReitti extends Component<{}> {
                                 isRefreshing: false,
                             }, function () {
                                 // do something with new state
-                                // console.log(responseJson);
                             });
                         })
                         .catch((error) => {
                             console.error(error);
                         });
-
-                    /*
-                    const fetchDepDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE' && new Date(row.scheduledTime)>currentTimeISODate)[0].scheduledTime);
-                    const finalDepDate = fetchDepDate.getHours() + ":" + ("0"+fetchDepDate.getMinutes()).slice(-2);
-                    const fetchArrDate = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === this.state.tuloLyhenne && row.trainStopping === true && row.type === 'ARRIVAL' && new Date(row.scheduledTime)>fetchDepDate)[0].scheduledTime);
-                    const finalArrDate = fetchArrDate.getHours() + ":" + ("0"+fetchArrDate.getMinutes()).slice(-2);
-                    */
                     })
                 )
                 .catch(error => console.log(error))
@@ -178,11 +165,6 @@ export default class JunaReitti extends Component<{}> {
 	handleInput = (type, userInput) => {
 			userInput = userInput.trim();
 			userInput = userInput.charAt(0).toUpperCase() + userInput.substr(1).toLowerCase();
-			/*
-			this.setState({
-                depInp: userInput.charAt(0).toUpperCase() + userInput.substr(1).toLowerCase()
-            });
-            */
 
 			console.log(userInput);
 			for (let asema in this.state.asemat) {
