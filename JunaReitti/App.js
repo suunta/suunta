@@ -210,27 +210,6 @@ export default class JunaReitti extends Component {
         );
     }
 
-    alertForLocationPermission() {
-        
-        if (this.state.locationPermission =! 'authorized') {
-            Alert.alert(
-            'JunaReitti haluaa käyttää sijaintiasi',
-            'Oikeus sijaintiin tarvitaan lähimmän aseman selvittämiseksi',
-            [
-                {
-                text: 'Ei',
-                onPress: () => console.log('Permission denied'),
-                style: 'cancel',
-                },
-                this.state.locationPermission === 'undetermined'
-                ? { text: 'OK', onPress: this.reguestPermissionLocation }
-                : { text: 'Avaa asetukset', onPress: Permissions.openSettings },
-            ],
-            )
-        }
-        this.reguestPermissionLocation()    
-    }
-
     reguestPermissionLocation = () => {
        
         if (this.state.locationPermission =! 'authorized') {
@@ -276,7 +255,7 @@ export default class JunaReitti extends Component {
                 });
             },
             (error) => {console.log(error.message); this.setState({ error: error.message }); ToastAndroid.show(error.message, ToastAndroid.SHORT);},
-            { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 },
         );
     }
 
@@ -305,7 +284,7 @@ export default class JunaReitti extends Component {
                     name={'location-on'}
                     type={'FontAwesome'}
                     size={26}
-                    onPress={ () => this.alertForLocationPermission() }
+                    onPress={ () => this.reguestPermissionLocation() }
                     title="Sijainti"
                 />
                 <List>
