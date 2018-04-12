@@ -169,11 +169,9 @@ export default class JunaReitti extends Component<{}> {
         };
 
     handleInput = (type, userInput) => {
-        userInput.trim();
-        userInput = userInput.charAt(0).toUpperCase() + userInput.substr(1).toLowerCase();
-
+        userInput = userInput.trim();
         for (let asema in this.state.asemat) {
-            if (userInput === this.state.asemat[asema].stationName) {
+            if (userInput.toUpperCase() === this.state.asemat[asema].stationName.toUpperCase()) {
                 if (type === "lahto") {
                     this.setState({
                         lahtoAsema: this.state.asemat[asema].stationName,
