@@ -172,24 +172,15 @@ export default class JunaReitti extends Component<{}> {
         userInput = userInput.trim();
         for (let asema in this.state.asemat) {
             if (userInput.toUpperCase() === this.state.asemat[asema].stationName.toUpperCase()) {
-                if (type === "lahto") {
-                    this.setState({
-                        lahtoAsema: this.state.asemat[asema].stationName,
-                        lahtoLyhenne: this.state.asemat[asema].stationShortCode
-                    }, () => {
-                        this.fetchTrainData();
-                    });
-                } else if (type === "tulo") {
-                    this.setState({
-                            tuloAsema: this.state.asemat[asema].stationName,
-                            tuloLyhenne: this.state.asemat[asema].stationShortCode
-                        }, () => {
-                            this.fetchTrainData();
-                        });
-                }
+                this.setState({
+                    [type + 'Asema']: this.state.asemat[asema].stationName,
+                    [type + 'Lyhenne']: this.state.asemat[asema].stationShortCode
+                }, () => {
+                    this.fetchTrainData();
+                });
             }
         }
-    };
+    }
 
     componentDidMount() {
         fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
