@@ -25,14 +25,17 @@ export default class JunaReitti extends Component<{}> {
 
     getArrDepTime(juna, stationShortCode, tyyppi) {
         let currentTime = new Date();
-        console.log(currentTime);
+        console.log("Haetaan " + tyyppi.toLowerCase() + "aika junalle " + juna.trainNumber);
+        const newArrDepTime = juna.timeTableRows.filter((row) => row.stationShortCode === stationShortCode && row.trainStopping === true && row.type === tyyppi && (new Date(row.liveEstimateTime)>currentTime || new Date(row.scheduledTime)>currentTime))[0];
 
-        const scheduledArrDepTime = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === stationShortCode && row.trainStopping === true && row.type === tyyppi && new Date(row.scheduledTime)>currentTime)[0].scheduledTime);
-        const liveEstimateArrDepTime = new Date(juna.timeTableRows.filter((row) => row.stationShortCode === stationShortCode && row.trainStopping === true && row.type === tyyppi && new Date(row.scheduledTime))[0].liveEstimateTime);
+        if (typeof (newArrDepTime) === 'undefined') {
+            return;
+        }
 
-        console.log("Aikataulun mukainen aika : " + scheduledArrDepTime);
-        console.log("Live-aika : " + liveEstimateArrDepTime);
-
+        const scheduledArrDepTime = new Date(newArrDepTime.scheduledTime);
+        const liveEstimateArrDepTime = new Date(newArrDepTime.liveEstimateTime);
+        console.log(tyyppi + " Aikataulun mukainen aika : " + scheduledArrDepTime);
+        console.log(tyyppi + " Live-aika : " + liveEstimateArrDepTime);
         let timeToReturn = '';
         let poikkeus = false;
 
@@ -58,32 +61,30 @@ export default class JunaReitti extends Component<{}> {
     };
 
     fetchTrainData = () => {
-
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             this.setState({
                 isRefreshing: true,
                 data: [],
                 minimiAika: 99999999
             });
+            const trainLimit = 15;
+            const offsetInMinutes = -30; // ainakin jonkin verran myöhästymisten takia
             let currentTime = new Date();
+            currentTime.setMinutes(currentTime.getMinutes() + offsetInMinutes);
             let currentTimeISO = currentTime.toISOString();
 
-            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=8&startDate=' + currentTimeISO)
+            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=' + trainLimit + '&startDate=' + currentTimeISO)
                 .then((response) => response.json())
                 .then(junat => junat.map(juna => {
-                    console.log("Käsitellään : " + juna.trainNumber);
-                    console.log("*** Yritetään fetchiä ");
+                    console.log("Käsitellään : " + juna.trainNumber);;
 
                     // Haetaan junalle ajantasaiset tiedot
                     fetch('https://rata.digitraffic.fi/api/v1/trains/latest/' + juna.trainNumber)
                         .then((response) => response.json())
                         .then(haetutJunat => haetutJunat.map(haettuJuna => {
-                            console.log("Fetchattu : " + juna.trainNumber);
-
-
+                            console.log("Fetchattu tarkat tiedot: " + juna.trainNumber);
                             let id = haettuJuna.trainNumber;
 							let tunnus = haettuJuna.commuterLineID !== "" ? haettuJuna.commuterLineID : haettuJuna.trainType + haettuJuna.trainNumber;
-                
 
                             let lahtoAika = '';
                             let lahtoRaide = '';
@@ -95,19 +96,20 @@ export default class JunaReitti extends Component<{}> {
                                 tuloAikaPrint = 'peruttu';
                                 // todo: syykoodi <- vaatii oman fetchin syykoodeista ja selityksistä
                             } else {
-                                console.log('*** Asetellaan aikoja');
 
                                 lahtoAikaObj = this.getArrDepTime(haettuJuna, this.state.lahtoLyhenne, 'DEPARTURE');
                                 tuloAikaObj = this.getArrDepTime(haettuJuna, this.state.tuloLyhenne, 'ARRIVAL');
 
-                                console.log(lahtoAikaObj);
-                                console.log(tuloAikaObj);
+                                if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined') {
+                                    console.log("Huono juna: " + haettuJuna.trainNumber);
+                                    return;
+                                }
 
                                 lahtoAika = lahtoAikaObj.aika;
                                 tuloAika = tuloAikaObj.aika;
 
-								let raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
-								
+								const raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
+
                                 const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
                                 const tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
 
@@ -139,13 +141,13 @@ export default class JunaReitti extends Component<{}> {
                             }
                         }))
                         .then((responseJson) => {
-                            if (this.state.data === undefined) {
+                            if (typeof(this.state.data) === 'undefined') {
                                 this.setState({
                                   data: [],
                                   isRefreshing: true,
                                 })
                             }
-                            if (responseJson !== undefined) {
+                            if (typeof(responseJson[0]) !== 'undefined') {
                               this.setState({
                                 data: this.state.data.concat(responseJson),
                               }, function () {
