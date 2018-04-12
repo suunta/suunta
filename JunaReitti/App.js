@@ -67,9 +67,8 @@ export default class JunaReitti extends Component<{}> {
             });
             let currentTime = new Date();
             let currentTimeISO = currentTime.toISOString();
-            let currentTimeISODate = new Date(currentTimeISO);
 
-            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=6&startDate=' + currentTimeISO)
+            fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=8&startDate=' + currentTimeISO)
                 .then((response) => response.json())
                 .then(junat => junat.map(juna => {
                     console.log("Käsitellään : " + juna.trainNumber);
@@ -140,12 +139,19 @@ export default class JunaReitti extends Component<{}> {
                             }
                         }))
                         .then((responseJson) => {
-                            this.setState({
+                            if (this.state.data === undefined) {
+                                this.setState({
+                                  data: [],
+                                  isRefreshing: true,
+                                })
+                            }
+                            if (responseJson !== undefined) {
+                              this.setState({
                                 data: this.state.data.concat(responseJson),
-                                isRefreshing: false,
-                            }, function () {
+                              }, function () {
                                 // do something with new state
-                            });
+                              });
+                            }
                         })
                         .catch((error) => {
                             console.error(error);
@@ -205,20 +211,19 @@ export default class JunaReitti extends Component<{}> {
             asemat: asemat}));
     }
 
-    onRefresh = async () => {
-        this.setState({
-            isRefreshing: true
-        });
+  onRefresh = async () => {
+    this.setState({
+      isRefreshing: true
+    });
 
-        await this.setState({
-            data: this.fetchTrainData()
-        });
+    this.fetchTrainData(() => {
+      this.setState({
+        isRefreshing: false
+      });
+    });
 
-        this.setState({
-            isRefreshing: false
-        });
 
-    };
+  }
 
     renderHeader() {
         return (
