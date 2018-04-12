@@ -108,7 +108,7 @@ export default class JunaReitti extends Component<{}> {
                                 lahtoAika = lahtoAikaObj.aika;
                                 tuloAika = tuloAikaObj.aika;
 
-								const raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
+                                const raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
 
                                 const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
                                 const tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
