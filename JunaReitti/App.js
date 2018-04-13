@@ -4,7 +4,7 @@ import {List, ListItem, Icon} from "react-native-elements";
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Permissions from 'react-native-permissions';
-import geolib from 'geolib';
+import HaeAsemat from './Components/HaeAsemat';
 
 export default class JunaReitti extends Component {
 
@@ -210,55 +210,6 @@ export default class JunaReitti extends Component {
         );
     }
 
-    reguestPermissionLocation = () => {
-       
-        if (this.state.locationPermission =! 'authorized') {
-            Permissions.request('location').then(response => {
-                // Returns once the user has chosen to 'allow' or to 'not allow' access
-                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-                this.setState({ locationPermission: response })
-                this.getClosestStation()
-            })  
-        }
-        this.getClosestStation()    
-    }
-
-    getClosestStation = () => {
-        
-        ToastAndroid.show('Haetaan sijaintia', ToastAndroid.SHORT)
-        
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                console.log(position);
-                this.setState({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    error: null,
-                },() => {
-                    
-                    let nykyinenSijainti = {"paikka": {latitude: this.state.latitude, longitude: this.state.longitude}}
-
-                    //Haetaan asemien sijainnit ja formatoidaan ne oikeaan muotoon
-                    let asemaSijainnit = {};
-                    
-                    for (var asema in this.state.asemat) {
-                        let nimi = this.state.asemat[asema].stationName;
-                        
-                        asemaSijainnit[nimi] = {latitude: this.state.asemat[asema].latitude, longitude: this.state.asemat[asema].longitude}
-                    }
-                    
-                    //Verrataan omaa sijaintia juna-asemien sijaintiin
-                    let result = geolib.findNearest(nykyinenSijainti['paikka'], asemaSijainnit, 0);
-
-                    console.log('Kutsutaan handleDeparttia parametrilla: ' + result.key);
-                    this.handleDepartInput(result.key);
-                });
-            },
-            (error) => {console.log(error.message); this.setState({ error: error.message }); ToastAndroid.show(error.message, ToastAndroid.SHORT);},
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 },
-        );
-    }
-
     render() {
         
         if (this.state.isLoading) {
@@ -276,16 +227,7 @@ export default class JunaReitti extends Component {
                 <Input placeholder="Lähtöasema" userInput={this.handleDepartInput} val={this.state.lahtoInput}/>
                 <Input placeholder="Tuloasema" userInput={this.handleDestInput}/>
                 </View>
-                {/*<Text>{this.state.lahtoAsema}</Text>
-                <Text>{this.state.lahtoLyhenne}</Text>
-                <Text>{this.state.tuloAsema}</Text>
-                <Text>{this.state.tuloLyhenne}</Text>*/}
-                <Icon
-                    name={'location-on'}
-                    size={26}
-                    onPress={ () => this.reguestPermissionLocation() }
-                    title="Sijainti"
-                />
+                <HaeAsemat locationPermission={this.state.locationPermission} asemat={this.state.asemat}/>
                 <List>
                     <FlatList
                         data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
