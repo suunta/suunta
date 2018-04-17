@@ -22,10 +22,6 @@ export default class JunaReitti extends Component {
             asemat: [],
             minimiAika: 0,
             locationPermission: '',
-            latitude: null,
-            longitude: null,
-            error: null,
-            lahinAsema: '',
             lahtoInput: '',
         };
     }
@@ -114,7 +110,6 @@ export default class JunaReitti extends Component {
 
     handleDepartInput = (userInput) => {
         userInput = userInput.trim();
-        console.log(userInput);
         this.setState({
             lahtoInput: userInput,
         })
@@ -230,6 +225,7 @@ export default class JunaReitti extends Component {
                 <HaeAsemat 
                     setLocationPermission = {locationPermission => this.setState({locationPermission})} 
                     asemat={this.state.asemat}
+                    input={this.handleDepartInput}
                 />
                 <List>
                     <FlatList

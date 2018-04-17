@@ -1,9 +1,8 @@
-import React, { Component } from 'react'
-import { Button, ToastAndroid } from 'react-native'
+import React, { Component } from 'react';
+import { Button, ToastAndroid } from 'react-native';
 import geolib from 'geolib';
 import Permissions from 'react-native-permissions';
 import { Icon } from "react-native-elements";
-import _ from "lodash";
 
 export default class HaeAsemat extends Component {
     
@@ -19,10 +18,10 @@ export default class HaeAsemat extends Component {
     }
 
     getClosestStation = () => {
-        console.log("Hakee asemia")
+        console.log("Hakee asemia");
         
-        let i = 1
-        i++
+        let i = 1;
+        i++;
         
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -49,12 +48,13 @@ export default class HaeAsemat extends Component {
 
                     console.log('Kutsutaan handleDeparttia parametrilla: ' + result.key);
                    // Tämä pitää muuttaa, jotta sijainti menee inputfieldiin this.handleDepartInput(result.key);
+                    this.props.input(result.key);
                 });
             },
             (error) => {console.log(error); this.setState({ error: error.message }); ToastAndroid.show(`${error.message} haetaan uudestaan (yritys ${i}) max 4`, ToastAndroid.SHORT); if (i <= 4) {this.getClosestStation()}},
             { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 },
         );        
-    }
+    };
 
     render() {
 
@@ -67,7 +67,7 @@ export default class HaeAsemat extends Component {
                         Permissions.request('location').then(response => {
                             // Returns once the user has chosen to 'allow' or to 'not allow' access
                             // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-                            setLocationResponse={response}
+                            setLocationResponse={response};
                             this.getClosestStation()
                         })
                     }
