@@ -21,6 +21,9 @@ export default class HaeAsemat extends Component {
     getClosestStation = () => {
         console.log("Hakee asemia")
         
+        let i = 1
+        i++
+        
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 console.log(position);
@@ -48,8 +51,8 @@ export default class HaeAsemat extends Component {
                    // Tämä pitää muuttaa, jotta sijainti menee inputfieldiin this.handleDepartInput(result.key);
                 });
             },
-            (error) => {console.log(error); this.setState({ error: error.message }); ToastAndroid.show(error.message, ToastAndroid.SHORT);},
-            { enableHighAccuracy: false, timeout: 20000, maximumAge: 5000 },
+            (error) => {console.log(error); this.setState({ error: error.message }); ToastAndroid.show(`${error.message} haetaan uudestaan (yritys ${i}) max 4`, ToastAndroid.SHORT); if (i <= 4) {this.getClosestStation()}},
+            { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 },
         );        
     }
 
