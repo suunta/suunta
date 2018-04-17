@@ -24,6 +24,9 @@ class AutoComplete extends React.Component {
 
         const tempL = [];
 
+        console.log('PROPSIT');
+        console.log(this.props.stations);
+
         this.props.stations.map((station) => {
 
             tempL.push(station.stationName);
@@ -73,9 +76,6 @@ class AutoComplete extends React.Component {
         )
     }
 }
-
-// `backgroundColor` needs to be set on container below autocomplete (list, whatever), otherwise the
-// autocomplete input will disappear on text input.
 
 const styles = StyleSheet.create({
     itemText: {
