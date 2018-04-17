@@ -3,6 +3,7 @@ import { Button, ToastAndroid } from 'react-native'
 import geolib from 'geolib';
 import Permissions from 'react-native-permissions';
 import { Icon } from "react-native-elements";
+import _ from "lodash";
 
 export default class HaeAsemat extends Component {
     
@@ -17,26 +18,8 @@ export default class HaeAsemat extends Component {
         }
     }
 
-    /*requestPermissionLocation = () => {
-
-        let locationPermission = this.props.locationPermission
-       
-        if (locationPermission =! 'authorized') {
-            Permissions.request('location').then(response => {
-                // Returns once the user has chosen to 'allow' or to 'not allow' access
-                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-                locationPermission = response
-            })
-            if (locationPermission === 'authorized') {
-                this.getClosestStation()
-            } else {
-                return console.log("Sijainti ei saatavissa")
-            }
-        }
-        this.getClosestStation()
-    }*/
-
     getClosestStation = () => {
+        console.log("Hakee asemia")
         
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -62,21 +45,31 @@ export default class HaeAsemat extends Component {
                     let result = geolib.findNearest(nykyinenSijainti['paikka'], asemaSijainnit, 0);
 
                     console.log('Kutsutaan handleDeparttia parametrilla: ' + result.key);
-                    this.handleDepartInput(result.key);
+                   // Tämä pitää muuttaa, jotta sijainti menee inputfieldiin this.handleDepartInput(result.key);
                 });
             },
             (error) => {console.log(error); this.setState({ error: error.message }); ToastAndroid.show(error.message, ToastAndroid.SHORT);},
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 },
+            { enableHighAccuracy: false, timeout: 20000, maximumAge: 5000 },
         );        
     }
 
     render() {
+
         return(
             <Icon
-                    name={'location-on'}
-                    size={26}
-                    onPress={ () => this.getClosestStation() }
-                    title="Sijainti"
+                name={'location-on'}
+                size={26}
+                onPress={ 
+                    requestPermission = () => {
+                        Permissions.request('location').then(response => {
+                            // Returns once the user has chosen to 'allow' or to 'not allow' access
+                            // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+                            setLocationResponse={response}
+                            this.getClosestStation()
+                        })
+                    }
+                }
+                title="Sijainti"
             />
         )
     }

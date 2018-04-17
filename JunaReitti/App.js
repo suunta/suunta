@@ -227,7 +227,10 @@ export default class JunaReitti extends Component {
                 <Input placeholder="Lähtöasema" userInput={this.handleDepartInput} val={this.state.lahtoInput}/>
                 <Input placeholder="Tuloasema" userInput={this.handleDestInput}/>
                 </View>
-                <HaeAsemat locationPermission={this.state.locationPermission} asemat={this.state.asemat}/>
+                <HaeAsemat 
+                    setLocationPermission = {locationPermission => this.setState({locationPermission})} 
+                    asemat={this.state.asemat}
+                />
                 <List>
                     <FlatList
                         data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)}
