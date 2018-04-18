@@ -297,23 +297,10 @@ export default class JunaReitti extends Component<{}> {
     renderItem({item, index}) {
         return (
             <View style={styles.junalista}>
-                <Text>  {item.tunnus}</Text>
-                {
-                    // todo: Rumat ternaryt, saisiko näitä nätimpään muotoon? -Mikko
-                    item.lahtoPoikkeus === true ? (
-                        <Text style={styles.poikkeusAika}>{item.lahtoAika}</Text>
-                    ) : (
-                        <Text>{item.lahtoAika}</Text>
-                    )
-                }
+                <Text>{item.tunnus}</Text>
+                <Text style={[/*styles.normaali, */item.lahtoPoikkeus && styles.poikkeusAika]}>{item.lahtoAika}</Text>
                 <Text>{item.lahtoRaide}</Text>
-                {
-                    item.tuloPoikkeus === true ? (
-                        <Text style={styles.poikkeusAika}>{'~' + item.tuloAika}</Text>
-                    ) : (
-                        <Text>{item.tuloAika}</Text>
-                    )
-                }
+                <Text style={item.tuloPoikkeus && styles.poikkeusAika}>{item.tuloAika}</Text>
             </View>
         );
     }
