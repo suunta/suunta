@@ -7,7 +7,7 @@ import Realm from 'realm';
 import {StationSchema} from './StationSchema';
 import {StationGroupSchema} from "./StationGroupSchema";
 
-export default class JunaReitti extends Component<{}> {
+export default class JunaReitti extends Component {
 
     constructor(props) {
         super(props);
@@ -70,7 +70,7 @@ export default class JunaReitti extends Component<{}> {
                 data: [],
                 minimiAika: 99999999
             });
-            const trainLimit = 15;
+            const trainLimit = 50;
             const offsetInMinutes = -30; // ainakin jonkin verran myöhästymisten takia
             let currentTime = new Date();
             currentTime.setMinutes(currentTime.getMinutes() + offsetInMinutes);
