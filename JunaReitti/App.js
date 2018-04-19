@@ -206,66 +206,32 @@ export default class JunaReitti extends Component<{}> {
 
     componentDidMount() {
         // Lisätään/tarkistetaan asemien tiedot
-      Realm.open({schema: [StationSchema, StationGroupSchema], deleteRealmIfMigrationNeeded: true})
-      .then(realm => {
-        const stationsCount = realm.objects('Station').length;
-        if (stationsCount === 0) {
-            console.log('*** Asemia ei tietokannassa, haetaan ja lisätään ***');
-
-            this.fetchStationsFromAPI()
-                .then(asemat => {
-                    this.setState({
-                        asemat: asemat,
-                        isLoading: false
-                    });
-
-                    console.log('*** Lisätään hakuajankohta ja asemat Realmiin');
-                    realm.write(() => {
-                        let updateTime = realm.create('StationGroup', {id: 1, lastUpdated: new Date(), stations: asemat})
-                    })
-                })
-                .catch(error => console.log(error.message));
-        }
-
-
-        if (stationsCount > 0) {
-            // Tarkistetaan viimeisin päivitysmpäivämäärä
-            let stationGroup = Array.from(realm.objects('StationGroup'));
-
-            // Jos data 24 tuntia vanhempaa, päivitetään
-            if (stationGroup[0].lastUpdated.getTime()+86400000 < new Date() ) {
-                console.log('*** Realmin data vanhaa, päivitetään');
+        Realm.open({schema: [StationSchema, StationGroupSchema], deleteRealmIfMigrationNeeded: true})
+        .then(realm => {
+            const stationsCount = realm.objects('Station').length;
+            const stationGroup = Array.from(realm.objects('StationGroup'));
+            if (stationsCount === 0 || stationGroup[0].lastUpdated.getTime()+86400000 < new Date()) {
+                console.log('Haetaan asemat');
                 this.fetchStationsFromAPI()
                     .then(asemat => {
                         this.setState({
                             asemat: asemat,
                             isLoading: false
                         });
-
-                        console.log('** ** ** Tuore hakuajankohta ja tiedot Realmiin');
+                        console.log('*** Lisätään hakuajankohta ja asemat Realmiin');
                         realm.write(() => {
-                            let updateTime = realm.create('StationGroup', {id: 1, lastUpdated: new Date(), stations: asemat}, true)
+                            realm.create('StationGroup', {id: 1, lastUpdated: new Date(), stations: asemat}, true)
                         })
                     })
                     .catch(error => console.log(error.message));
-
-
             } else {
                 console.log('*** Asemat on jo Realmissa, asetetaan '+ stationsCount +' asemaa stateen');
-                const stationArray = realm.objects('StationGroup');
-                console.log('STATIONARRAY');
-                console.log(stationArray);
                 this.setState({
                     isLoading: false,
-                    asemat: stationArray['0'].stations
-                }, () => {
-                    console.log('THIS.STATE.ASEMAT');
-                    console.log(this.state.asemat);
+                    asemat: realm.objects('StationGroup')[0].stations
                 });
             }
-
-        }
-      })
+        })
     }
 
   onRefresh = async () => {
