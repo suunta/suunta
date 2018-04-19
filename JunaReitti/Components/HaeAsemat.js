@@ -26,6 +26,7 @@ export default class HaeAsemat extends Component {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 console.log(position);
+                i = 1;
                 this.setState({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
@@ -64,7 +65,7 @@ export default class HaeAsemat extends Component {
                 size={26}
                 onPress={ 
                     requestPermission = () => {
-                        Permissions.request('location').then(response => {
+                        Permissions.request('location', { type: 'whenInUse' }).then(response => {
                             // Returns once the user has chosen to 'allow' or to 'not allow' access
                             // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
                             setLocationResponse={response};
