@@ -3,19 +3,62 @@ import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react
 import Input from "./Components/Input";
 import sortBy from "lodash/sortBy";
 import Swiper from 'react-native-swiper';
+import Realm from 'realm';
 import JunaReitti from './JunaReitti';
 import Asetukset from './Asetukset';
 import {StackNavigator} from 'react-navigation';
+import {RouteSchema} from "./RouteSchema";
 
 export default class App extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            asemaValit: [['HKI', 'PSL'], ['MLO', 'POH'], ['TPE', 'HKI']],
-            asemat: []
+          asemaValit: [['HKI', 'PSL'], ['MLO', 'POH'], ['TPE', 'HKI']],
+          asemat: [],
+          reitit: []
         };
     }
+
+  fetchRoutesFromRealm() {
+    console.log('**** Koitetaan hakea reitit Realmista');
+
+    Realm.open({schema: [RouteSchema]})
+      .then(realm => {
+        try {
+          const routes = realm.objects('Route');
+          this.setState({
+            reitit: routes
+          });
+          console.log('*** Reitit Realmista :');
+          console.log(routes);
+          return routes;
+        } catch (e) {
+          console.log('Virhe reittien haussa Realmista');
+        }
+      });
+  }
+
+  componentDidMount() {
+    console.log('**** Koitetaan hakea reitit Realmista');
+    this.fetchRoutesFromRealm();
+
+    fetch('https://rata.digitraffic.fi/api/v1/metadata/stations')
+      .then((response) => response.json())
+      .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
+      .then(asemat => asemat.map(asema => {
+          return {
+            id: asema.stationUICCode,
+            stationShortCode: asema.stationShortCode,
+            stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
+            passengerTraffic: asema.passengerTraffic
+          }
+        })
+      )
+      .then(asemat => this.setState({
+        isLoading: false,
+        asemat: asemat}));
+  }
     
     
      render() {
@@ -26,8 +69,8 @@ export default class App extends Component {
 class HomeScreen extends React.Component {
     static navigationOptions = { header: null };
   render() {
-    const reitit = this.props.screenProps.asemaValit.map((reitti, index) => (
-      <JunaReitti key={index} lahtoasema={reitti[0]} tuloasema={reitti[1]} navigation={this.props.navigation} />
+    const reitit = this.props.screenProps.reitit.map((reitti, index) => (
+      <JunaReitti key={index} lahtoasema={reitti.lahtoAsema} tuloasema={reitti.tuloAsema} navigation={this.props.navigation} />
     ));
       return ( 
       <View style={{ flex: 1}} >
@@ -44,7 +87,7 @@ class SettingsScreen extends React.Component {
  static navigationOptions = { title: 'Asetukset'};
   render() {
     return (
-    <Asetukset asemaValit={this.props.screenProps.asemaValit} />
+    <Asetukset asemat= {this.props.screenProps.asemat} asemaValit={this.props.screenProps.asemaValit} />
     );
   }
 }
