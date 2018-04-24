@@ -1,11 +1,13 @@
 import React, {Component} from "react";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList} from "react-native";
 // import {List, ListItem} from "react-native-elements";
 import Autocomplete from "./Components/Autocomplete";
 import sortBy from "lodash/sortBy";
 import Realm from 'realm';
 import {StationSchema} from './StationSchema';
 import {StationGroupSchema} from "./StationGroupSchema";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert} from "react-native";
+import Permissions from 'react-native-permissions';
+import HaeAsemat from './Components/HaeAsemat';
 
 export default class JunaReitti extends Component {
 
@@ -22,7 +24,8 @@ export default class JunaReitti extends Component {
             tuloLyhenne: '',
             asemat: [],
             minimiAika: 0,
-            userInput: ''
+            locationPermission: '',
+            locationCurrent: ''
         };
     }
 
@@ -187,6 +190,12 @@ export default class JunaReitti extends Component {
         }
     }
 
+    setLocation = (location) => {
+        console.log('lokaatiosetloc');
+        console.log(location);
+        this.handleInput('lahto', location);
+    }
+
 	fetchStationsFromAPI = async () => {
 	    let response = await fetch('https://rata.digitraffic.fi/api/v1/metadata/stations');
 	    let data = await response.json();
@@ -232,6 +241,12 @@ export default class JunaReitti extends Component {
                 });
             }
         })
+
+            Permissions.check('location').then(response => {
+                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+                this.setState({ locationPermission: response })
+                console.log(this.state.locationPermission)
+            })
     }
 
   onRefresh = async () => {
@@ -272,7 +287,7 @@ export default class JunaReitti extends Component {
     }
 
     render() {
-
+        
         if (this.state.isLoading) {
             return (
                 <View style={{flex: 1, paddingTop: 40}}>
@@ -293,9 +308,14 @@ export default class JunaReitti extends Component {
                 refreshing={this.state.isRefreshing}
               />
               <View style={styles.autoContainer}>
-                <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput}/>
+                <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
                 <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
-              </View>
+              </View>        
+                <HaeAsemat 
+                    setLocationPermission = {locationPermission => this.setState({locationPermission})} 
+                    asemat={this.state.asemat}
+                    location={this.setLocation}
+                />
             </View>
         );
     }

@@ -24,9 +24,6 @@ class AutoComplete extends React.Component {
 
         const tempL = [];
 
-        console.log('PROPSIT');
-        console.log(this.props.stations);
-
         this.props.stations.map((station) => {
 
             tempL.push(station.stationName);
@@ -35,6 +32,7 @@ class AutoComplete extends React.Component {
         this.setState({
             stationList: tempL
         })
+
     }
 
     findStation(query) {

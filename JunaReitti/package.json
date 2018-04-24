@@ -1,6 +1,6 @@
 {
   "name": "JunaReitti",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "autosuggest": "0.0.2",
+    "geolib": "^2.0.24",
     "react": "16.2.0",
     "react-autosuggest": "^9.3.4",
     "react-native": "0.53.0",
@@ -17,7 +18,9 @@
     "react-native-autosuggest": "^1.0.1",
     "react-native-elements": "0.19.0",
     "react-native-vector-icons": "4.5.0",
-    "realm": "^2.3.3"
+    "realm": "^2.3.3",
+    "react-native-permissions": "^1.1.1",
+    "react-native-vector-icons": "^4.5.0"
   },
   "devDependencies": {
     "babel-jest": "22.2.2",

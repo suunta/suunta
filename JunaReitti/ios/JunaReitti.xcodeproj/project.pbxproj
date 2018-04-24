@@ -39,6 +39,7 @@
 		4C05761715934E48A9E87F74 /* libRealmReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 434427EF4EC34229B99F5BE7 /* libRealmReact.a */; };
 		0EA363AF305A4A7C90A827CF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F158D1DB9E3404CA0814EFF /* libc++.tbd */; };
 		48BC03F4126D400698C4B92D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6142D980BBD145439B7B8A83 /* libz.tbd */; };
+		DC0C1F570C084AEFAC75C02B /* libReactNativePermissions.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 38E7F7FF712146EF8FA9E27D /* libReactNativePermissions.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -288,10 +289,15 @@
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		818D561A975E454CAC58A53D /* RealmReact.xcodeproj */ = {isa = PBXFileReference; name = "RealmReact.xcodeproj"; path = "../node_modules/realm/react-native/ios/RealmReact.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		434427EF4EC34229B99F5BE7 /* libRealmReact.a */ = {isa = PBXFileReference; name = "libRealmReact.a"; path = "libRealmReact.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		8F158D1DB9E3404CA0814EFF /* libc++.tbd */ = {isa = PBXFileReference; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
 		6142D980BBD145439B7B8A83 /* libz.tbd */ = {isa = PBXFileReference; name = "libz.tbd"; path = "usr/lib/libz.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
+=======
+		E2C5B0392D2E40979E7AFC10 /* ReactNativePermissions.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativePermissions.xcodeproj"; path = "../node_modules/react-native-permissions/ios/ReactNativePermissions.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		38E7F7FF712146EF8FA9E27D /* libReactNativePermissions.a */ = {isa = PBXFileReference; name = "libReactNativePermissions.a"; path = "libReactNativePermissions.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+>>>>>>> origin/SeveriLokaatioComponent
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -320,9 +326,13 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
+<<<<<<< HEAD
 				4C05761715934E48A9E87F74 /* libRealmReact.a in Frameworks */,
 				0EA363AF305A4A7C90A827CF /* libc++.tbd in Frameworks */,
 				48BC03F4126D400698C4B92D /* libz.tbd in Frameworks */,
+=======
+				DC0C1F570C084AEFAC75C02B /* libReactNativePermissions.a in Frameworks */,
+>>>>>>> origin/SeveriLokaatioComponent
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -502,7 +512,11 @@
 				832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */,
 				00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */,
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
+<<<<<<< HEAD
 				818D561A975E454CAC58A53D /* RealmReact.xcodeproj */,
+=======
+				E2C5B0392D2E40979E7AFC10 /* ReactNativePermissions.xcodeproj */,
+>>>>>>> origin/SeveriLokaatioComponent
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -524,6 +538,7 @@
 				00E356EF1AD99517003FC87E /* JunaReittiTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				39F4F121307549729D55C2AD /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -548,6 +563,14 @@
 				2D16E6721FA4F8DC00B85C8A /* libRCTBlob-tvOS.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		39F4F121307549729D55C2AD /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1073,11 +1096,18 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JunaReitti.app/JunaReitti";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\realm\src/**",
+=======
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)\..\node_modules\react-native-permissions\ios/**",
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Debug;
@@ -1098,11 +1128,18 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JunaReitti.app/JunaReitti";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\realm\src/**",
+=======
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)\..\node_modules\react-native-permissions\ios/**",
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Release;
@@ -1124,7 +1161,11 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"$(SRCROOT)\..\node_modules\realm\src/**",
+=======
+					"$(SRCROOT)\..\node_modules\react-native-permissions\ios/**",
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Debug;
@@ -1145,7 +1186,11 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"$(SRCROOT)\..\node_modules\realm\src/**",
+=======
+					"$(SRCROOT)\..\node_modules\react-native-permissions\ios/**",
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Release;
@@ -1175,11 +1220,18 @@
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\realm\src/**",
+=======
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)\..\node_modules\react-native-permissions\ios/**",
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Debug;
@@ -1209,11 +1261,18 @@
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)\..\node_modules\realm\src/**",
+=======
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)\..\node_modules\react-native-permissions\ios/**",
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Release;
@@ -1238,7 +1297,10 @@
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+=======
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Debug;
@@ -1263,7 +1325,10 @@
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+<<<<<<< HEAD
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+=======
+>>>>>>> origin/SeveriLokaatioComponent
 				);
 			};
 			name = Release;
