@@ -194,6 +194,7 @@ export default class JunaReitti extends Component {
         console.log('lokaatiosetloc');
         console.log(location);
         this.handleInput('lahto', location);
+        this.setState({locationCurrent: location});
     }
 
 	fetchStationsFromAPI = async () => {
@@ -310,7 +311,7 @@ export default class JunaReitti extends Component {
               <View style={styles.autoContainer}>
                 <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
                 <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
-              </View>        
+              </View>
                 <HaeAsemat 
                     setLocationPermission = {locationPermission => this.setState({locationPermission})} 
                     asemat={this.state.asemat}

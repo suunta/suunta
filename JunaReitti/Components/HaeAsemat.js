@@ -73,7 +73,7 @@ export default class HaeAsemat extends Component {
     render() {
 
         return(
-            <View style={{paddingLeft: 350, paddingTop: 6}}>
+            <View style={{top: 6, right: 0, position:'absolute'}}>
                 <Icon
                     name={'location-on'}
                     size={26}

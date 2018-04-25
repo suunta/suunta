@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {TouchableOpacity, View, StyleSheet, Text} from "react-native";
 import Autocomplete from 'react-native-autocomplete-input';
+import { Icon } from "react-native-elements";
 
 class AutoComplete extends React.Component {
 
@@ -35,6 +36,12 @@ class AutoComplete extends React.Component {
 
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.location !== this.props.location) {
+            this.setState({query: ''});
+        }
+    }
+
     findStation(query) {
         if (query === '') {
             return [];
@@ -53,24 +60,31 @@ class AutoComplete extends React.Component {
 
         console.log(stations);
 
+        let icon;
+        if (this.props.location && this.props.location.length > 0 && this.state.query.length == 0) {
+            icon = (<View style={styles.icon}><Icon name={'my-location'} size={20} color="#666" title="Oma Sijainti" /></View>)
+        }
+
         return (
-            <Autocomplete
-                autoCapitalize="none"
-                containerStyle={{width: '40%'}}
-                inputContainerStyle={{borderRightWidth:0,borderLeftWidth:0}}
-                underlineColorAndroid='transparent'
-                data={stations.length && comp(query, stations[0]) ? [] : stations}
-                defaultValue={query}
-                onChangeText={this.inputHandler}
-                placeholder={this.props.placeholder}
-                renderItem={(data) => (
-                    <TouchableOpacity onPress={() => this.setState({ query: data }, () => {this.props.userInput(this.props.name, this.state.query);})}>
-                        <Text style={styles.itemText}>
-                            {data}
-                        </Text>
-                    </TouchableOpacity>
-                )}
-            />
+            <View style={{width: '50%'}}>
+                <Autocomplete
+                    autoCapitalize="none"
+                    inputContainerStyle={styles.inputContainer}
+                    underlineColorAndroid='transparent'
+                    data={stations.length && comp(query, stations[0]) ? [] : stations}
+                    defaultValue={query}
+                    onChangeText={this.inputHandler}
+                    placeholder={icon ? '       '+this.props.location : this.props.placeholder}
+                    renderItem={(data) => (
+                        <TouchableOpacity onPress={() => this.setState({ query: data }, () => {this.props.userInput(this.props.name, this.state.query);})}>
+                            <Text style={styles.itemText}>
+                                {data}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+                />
+                {icon}
+            </View>
         )
     }
 }
@@ -79,6 +93,15 @@ const styles = StyleSheet.create({
     itemText: {
         fontSize: 15,
         margin: 2
+    },
+    inputContainer: {
+        borderRightWidth: 0,
+        borderLeftWidth: 0
+    },
+    icon: {
+        position: 'absolute',
+        top: 10,
+        left: 3
     }
 });
 
