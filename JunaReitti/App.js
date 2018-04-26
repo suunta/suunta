@@ -90,61 +90,59 @@ export default class JunaReitti extends Component {
                         .then(haetutJunat => haetutJunat.map(haettuJuna => {
                             console.log("Fetchattu tarkat tiedot: " + juna.trainNumber);
                             let id = haettuJuna.trainNumber;
-							let tunnus = haettuJuna.commuterLineID !== "" ? haettuJuna.commuterLineID : haettuJuna.trainType + haettuJuna.trainNumber;
+                            let tunnus = haettuJuna.commuterLineID !== "" ? haettuJuna.commuterLineID : haettuJuna.trainType + haettuJuna.trainNumber;
 
-                            let lahtoAika = '';
-                            let lahtoRaide = '';
-                            let tuloAika = '';
+                            lahtoAikaObj = this.getArrDepTime(haettuJuna, this.state.lahtoLyhenne, 'DEPARTURE');
+                            tuloAikaObj = this.getArrDepTime(haettuJuna, this.state.tuloLyhenne, 'ARRIVAL');
+
+                            if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined') {
+                                console.log("Huono juna: " + haettuJuna.trainNumber);
+                                return;
+                            }
+
+                            const lahtoAika = lahtoAikaObj.aika;
+                            const tuloAika = tuloAikaObj.aika;
+
+                            const raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
+
+                            const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
+                            let tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
+
+                            console.log("lahtoAika : " + lahtoAika + " -> " + lahtoAikaPrint);
+                            console.log("tuloAika : " + tuloAika + " -> " + tuloAikaPrint);
+
+                            // Lasketaan matka-aika, jotta voidaan karsia järjettömät matkat pois
+                            const traveltime = (new Date(tuloAika) - new Date(lahtoAika))/1000;
+
+                            if (this.state.minimiAika > traveltime) {
+                                this.setState({
+                                    minimiAika: traveltime
+                                });
+                            }
+
+                            let lahtoRaide = juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[raideIndex].commercialTrack;
 
                             // Tarkistetaan, onko koko juna peruttu
-                            if (haettuJuna.cancelled === true) {
+                            if (haettuJuna.cancelled) {
                                 lahtoRaide = '-';
                                 tuloAikaPrint = 'peruttu';
+                                lahtoAikaObj.poikkeus = true;
+                                tuloAikaObj.poikkeus = true;
                                 // todo: syykoodi <- vaatii oman fetchin syykoodeista ja selityksistä
-                            } else {
-
-                                lahtoAikaObj = this.getArrDepTime(haettuJuna, this.state.lahtoLyhenne, 'DEPARTURE');
-                                tuloAikaObj = this.getArrDepTime(haettuJuna, this.state.tuloLyhenne, 'ARRIVAL');
-
-                                if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined') {
-                                    console.log("Huono juna: " + haettuJuna.trainNumber);
-                                    return;
-                                }
-
-                                lahtoAika = lahtoAikaObj.aika;
-                                tuloAika = tuloAikaObj.aika;
-
-                                const raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
-
-                                const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
-                                const tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
-
-                                console.log("lahtoAika : " + lahtoAika + " -> " + lahtoAikaPrint);
-                                console.log("tuloAika : " + tuloAika + " -> " + tuloAikaPrint);
-
-                                // Lasketaan matka-aika, jotta voidaan karsia järjettömät matkat pois
-                                const traveltime = (new Date(tuloAika) - new Date(lahtoAika))/1000;
-                                console.log("traveltime : " + traveltime);
-
-                                if (this.state.minimiAika > traveltime) {
-                                    this.setState({
-                                        minimiAika: traveltime
-                                    });
-                                }
-
-                                return {
-                                    id: id,
-                                    tunnus: tunnus,
-                                    lahtoPvm: lahtoAika,
-                                    lahtoAika: lahtoAikaPrint,
-                                    lahtoRaide: juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[raideIndex].commercialTrack,
-                                    tuloAika: tuloAikaPrint,
-                                    matkaAika: traveltime,
-                                    lahtoPoikkeus: lahtoAikaObj.poikkeus,
-                                    tuloPoikkeus: tuloAikaObj.poikkeus,
-                                }
-
                             }
+
+                            return {
+                                id: id,
+                                tunnus: tunnus,
+                                lahtoPvm: lahtoAika,
+                                lahtoAika: lahtoAikaPrint,
+                                lahtoRaide: lahtoRaide,
+                                tuloAika: tuloAikaPrint,
+                                matkaAika: traveltime,
+                                lahtoPoikkeus: lahtoAikaObj.poikkeus,
+                                tuloPoikkeus: tuloAikaObj.poikkeus,
+                            }
+
                         }))
                         .then((responseJson) => {
                             if (typeof(this.state.data) === 'undefined') {
