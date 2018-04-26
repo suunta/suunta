@@ -5,7 +5,7 @@ import sortBy from "lodash/sortBy";
 import Realm from 'realm';
 import {StationSchema} from './StationSchema';
 import {StationGroupSchema} from "./StationGroupSchema";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert, Platform, StatusBar} from "react-native";
 import Permissions from 'react-native-permissions';
 import HaeAsemat from './Components/HaeAsemat';
 
@@ -298,7 +298,13 @@ export default class JunaReitti extends Component {
         }
 
         return (
-            <View style={{flex: 1, paddingTop: 0}}>
+            <View style={{flex: 1, marginTop: (Platform.OS == 'ios') ? 20 : 0}}>
+                <StatusBar 
+                barStyle = "dark-content" 
+                hidden = {false}
+                translucent = {true}
+                networkActivityIndicatorVisible = {true}
+                />
               <FlatList style={styles.listContainer}
                 data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
                 keyExtractor = {item => item.id.toString()}
