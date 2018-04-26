@@ -264,7 +264,7 @@ export default class JunaReitti extends Component {
 
     renderHeader() {
         return (
-            <View style={styles.junatHeader}>
+            <View style={[styles.junatHeader]}>
                 <Text>Tunnus</Text>
                 <Text>Lähtöaika</Text>
                 <Text>Lähtöraide</Text>
@@ -275,8 +275,10 @@ export default class JunaReitti extends Component {
     };
 
     renderItem({item, index}) {
+        let colors = ['#fff', '#F5F5F5'];
+        let rowBackground = {backgroundColor: colors[index % colors.length]};
         return (
-            <View style={styles.junalista}>
+            <View style={[styles.junalista, rowBackground]}>
                 <Text style={[styles.listCell, styles.tunnus]}>{item.tunnus}</Text>
                 <Text style={[styles.listCell, styles.aika, item.lahtoPoikkeus && styles.poikkeusAika]}>{item.lahtoAika}</Text>
                 <Text style={[styles.listCell, styles.raide]}>{item.lahtoRaide}</Text>
@@ -339,11 +341,11 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     junatHeader: {
-        backgroundColor: '#fff',
+        backgroundColor: '#7ece83',
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        height: 40,
+        height: 50,
         borderBottomWidth: 1,
         borderBottomColor: '#d3d3d3'
     },
