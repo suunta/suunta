@@ -14,7 +14,6 @@ export default class App extends Component {
         super(props);
 
         this.state = {
-          asemaValit: [['HKI', 'PSL'], ['MLO', 'POH'], ['TPE', 'HKI']],
           asemat: [],
           reitit: []
         };
@@ -27,6 +26,11 @@ export default class App extends Component {
       .then(realm => {
         try {
           const routes = realm.objects('Route');
+
+          if (routes.length === 0) {
+            routes.push('0');
+          }
+
           this.setState({
             reitit: routes
           });
@@ -69,9 +73,16 @@ export default class App extends Component {
 class HomeScreen extends React.Component {
     static navigationOptions = { header: null };
   render() {
+    console.log('ÄÄÄ screenProps.reitit :');
+    console.log(this.props.screenProps.reitit);
+
     const reitit = this.props.screenProps.reitit.map((reitti, index) => (
-      <JunaReitti key={index} lahtoasema={reitti.lahtoAsema} tuloasema={reitti.tuloAsema} navigation={this.props.navigation} />
+      <JunaReitti key={index} reitit={this.props.screenProps.reitit} lahtoAsema={reitti.lahtoAsema} lahtoLyhenne={reitti.lahtoLyhenne} tuloAsema={reitti.tuloAsema}  tuloLyhenne={reitti.tuloLyhenne} navigation={this.props.navigation} />
     ));
+
+    if (reitit === undefined || reitit == null || reitit.length === 0) {
+      reitit.push(<JunaReitti key={0} reitit={this.props.screenProps.reitit} lahtoAsema={''} tuloAsema={''} navigation={this.props.navigation} />)
+    }
       return ( 
       <View style={{ flex: 1}} >
                 <Swiper showsButtons={false}>
@@ -87,7 +98,7 @@ class SettingsScreen extends React.Component {
  static navigationOptions = { title: 'Asetukset'};
   render() {
     return (
-    <Asetukset asemat= {this.props.screenProps.asemat} asemaValit={this.props.screenProps.asemaValit} />
+    <Asetukset asemat={this.props.screenProps.asemat} />
     );
   }
 }

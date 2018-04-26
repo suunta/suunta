@@ -9,8 +9,8 @@ export default class Asetukset extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      lahtoAsema: '',
-      tuloAsema: '',
+      lahtoLyhenne: '',
+      tuloLyhenne: '',
       lahto: '',
       tulo: '',
       reitit: {},
@@ -42,8 +42,8 @@ export default class Asetukset extends Component {
     this.setState({
       [type + 'Asema']: userInput,
     }, () => {
-      console.log(this.state.lahtoAsema);
-      console.log(this.state.tuloAsema);
+      console.log(this.state.lahtoLyhenne);
+      console.log(this.state.tuloLyhenne);
     });
   }
 
@@ -71,15 +71,17 @@ export default class Asetukset extends Component {
       .then(realm => {
         try {
           let lastId = realm.objects('Route').max('id');
-          console.log('** lastId :');
-          console.log(lastId);
 
-          if (lastId == null) {
+          if (lastId == undefined) {
             lastId = 0;
 
           } else {
             lastId = lastId+1;
           }
+
+          console.log('** lastId ennen asetusta stateen :');
+          console.log(lastId);
+
 
           this.setState({
             lastId: lastId
@@ -99,25 +101,48 @@ export default class Asetukset extends Component {
 
     // Haetaan viimeisin ID Realmista
     let lastId = this.getLastIdFromRealm();
-    console.log('*** ID : ' + lastId);
 
-    Realm.open({schema: [RouteSchema]})
-      .then(realm => {
-        try {
-          realm.write(() => {
-            let reitti = realm.create('Route', {id: this.state.lastId, lahtoAsema: this.state.lahtoAsema, tuloAsema: this.state.tuloAsema});
-          });
-        } catch (e) {
-          console.log("!!! Error on creation :");
-          console.log(e);
-        }
-      })
-      .then(() => {
+    // Varmistetaan, että syötetyt asemat ovat oikeita asemia
+    let lahtoOikein = false;
+    let tuloOikein = false;
+
+    console.log('Etsitään asemien shortCodet :');
+
+    for (let i = 0; i < this.props.asemat.length ; i++) {
+      console.log(this.props.asemat[i]);
+      if (this.props.asemat[i].stationName === this.state.lahtoAsema) {
         this.setState({
-          lahtoAsema: '',
-          tuloAsema: ''
+          lahtoLyhenne: this.props.asemat[i].stationShortCode
         });
-      })
+        lahtoOikein = true;
+      }
+      if (this.props.asemat[i].stationName === this.state.tuloAsema) {
+        this.setState({
+          tuloLyhenne: this.props.asemat[i].stationShortCode
+        });
+        tuloOikein = true;
+      }
+    }
+
+    if (lahtoOikein && tuloOikein) {
+      Realm.open({schema: [RouteSchema]})
+        .then(realm => {
+          try {
+            realm.write(() => {
+              let reitti = realm.create('Route', {id: this.state.lastId, lahtoAsema: this.state.lahtoAsema, lahtoLyhenne: this.state.lahtoLyhenne, tuloAsema: this.state.tuloAsema, tuloLyhenne: this.state.tuloLyhenne});
+            });
+          } catch (e) {
+            console.log("!!! Error on creation :");
+            console.log(e);
+          }
+        })
+        .then(() => {
+          this.setState({
+            lahtoLyhenne: '',
+            tuloLyhenne: ''
+          });
+        })
+    }
   }
 
   deleteRouteFromRealm(item) {

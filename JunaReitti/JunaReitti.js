@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Picker} from "react-native";
 import Input from "./Components/Input";
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import MatIcon from 'react-native-vector-icons/MaterialIcons';
@@ -13,18 +13,22 @@ export default class JunaReitti extends Component<{}> {
             data: [],
             isLoading: true,
             isRefreshing: false,
-            lahtoAsema: '',
-            tuloAsema: '',
-            lahtoLyhenne: this.props.lahtoasema,
-            tuloLyhenne: this.props.tuloasema,
+            lahtoAsema: this.props.lahtoAsema,
+            lahtoLyhenne: this.props.lahtoLyhenne,
+            tuloAsema: this.props.tuloAsema,
+            tuloLyhenne: this.props.tuloLyhenne,
             asemat: [],
-            minimiAika: 0
+            minimiAika: 0,
+          reitit: this.props.reitit,
         };
     }
 
     fetchTrainData = () => {
+      console.log('3');
+      console.log(this.state.lahtoAsema);
 
-        if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
+
+      if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             this.setState({
                 isRefreshing: true,
                 minimiAika: 99999999
@@ -81,7 +85,7 @@ export default class JunaReitti extends Component<{}> {
             .then((response) => response.json())
             .then(asemat => asemat.filter((asema) => asema.passengerTraffic === true))
             .then(asemat => asemat.map(asema => {
-                    if (asema.stationShortCode === this.state.lahtoLyhenne) {
+                    /*if (asema.stationShortCode === this.state.lahtoLyhenne) {
                       this.setState({lahtoAsema: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName});
                       console.log("löytyi listasta sama lahtolyhenne, se on " + this.state.lahtoLyhenne);
                       console.log("eli stateen asetetaan " + (asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName));
@@ -89,7 +93,7 @@ export default class JunaReitti extends Component<{}> {
                       this.setState({tuloAsema: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName});
                       console.log("löytyi listasta sama tulolyhenne, se on " + this.state.tuloLyhenne);
                       console.log("eli stateen asetetaan " + (asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName));
-                    }
+                    }*/
                     return {
                         id: asema.stationUICCode,
                         stationShortCode: asema.stationShortCode,
@@ -127,10 +131,10 @@ export default class JunaReitti extends Component<{}> {
     
     reverseRoute() {
       this.setState(prevState => ({
-        lahtoLyhenne: prevState.tuloLyhenne,
-        tuloLyhenne: prevState.lahtoLyhenne,
-        lahtoAsema:prevState.tuloAsema,
-        tuloAsema: prevState.lahtoAsema
+        lahtoAsema: prevState.tuloAsema,
+        tuloAsema: prevState.lahtoAsema,
+        lahtoLyhenne:prevState.tuloLyhenne,
+        tuloLyhenne: prevState.lahtoLyhenne
       }), () => {
         this.fetchTrainData();
       });
@@ -158,6 +162,22 @@ export default class JunaReitti extends Component<{}> {
         );
     }
 
+    changedPickerValue(event) {
+      console.log('2');
+      console.log(this.state.lahtoAsema);
+
+
+      console.log(event);
+      this.setState({
+        lahtoAsema: event.lahtoAsema,
+        lahtoLyhenne: event.lahtoLyhenne,
+        tuloAsema: event.tuloAsema,
+        tuloLyhenne: event.tuloLyhenne,
+      }, () => {
+        this.fetchTrainData();
+      })
+    }
+
     render() {
 
         if (this.state.isLoading) {
@@ -168,13 +188,22 @@ export default class JunaReitti extends Component<{}> {
             );
         }
 
+        console.log('1');
+        console.log(this.state.lahtoAsema);
+
+      let reitit = this.state.reitit.map((reitti, index) => (
+        <Picker.Item key={index} label={reitti.lahtoAsema +' - '+reitti.tuloAsema} value={reitti} />
+      ));
+
         return (
           <View style1={{flex: 1, paddingTop: 0}}>
             <View style={styles.toolbar}>
               <Text>{this.state.lahtoAsema}</Text>
-              <Text>–</Text>
-              <Text>{this.state.tuloAsema}</Text>
               <FAIcon name="exchange" size={25} color="black" onPress={() => this.reverseRoute()}/>
+              <Text>{this.state.tuloAsema}</Text>
+              <Picker onValueChange={(event => this.changedPickerValue(event))} selectedValue={this.state.lahtoAsema +' - '+ this.state.tuloAsema} style={{width: 200}}>
+                {reitit}
+              </Picker>
               <FAIcon name="gear" size={25} color="black" onPress={() => this.props.navigation.navigate('Settings')}/>
               {/*<MatIcon name="location-on" size={25} color="#d3d3d3" />*/}
             </View>

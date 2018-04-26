@@ -4,6 +4,8 @@ export const RouteSchema = {
   properties: {
     id: 'int',
     lahtoAsema: 'string',
+    lahtoLyhenne: 'string',
     tuloAsema: 'string',
+    tuloLyhenne: 'string',
   }
 }
