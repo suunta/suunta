@@ -29,6 +29,7 @@ export default class HaeAsemat extends Component {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
                     error: null,
+                    index: 1
                 },() => {
                     
                     let nykyinenSijainti = {"paikka": {latitude: this.state.latitude, longitude: this.state.longitude}}
@@ -52,8 +53,7 @@ export default class HaeAsemat extends Component {
 
                 
                 });
-            },
-            //Nollaa this.state.index
+            },           
             (error) => {
                 console.log(error); 
                 
