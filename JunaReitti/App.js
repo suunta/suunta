@@ -278,10 +278,10 @@ export default class JunaReitti extends Component {
     renderItem({item, index}) {
         return (
             <View style={styles.junalista}>
-                <Text>{item.tunnus}</Text>
-                <Text style={[/*styles.normaali, */item.lahtoPoikkeus && styles.poikkeusAika]}>{item.lahtoAika}</Text>
-                <Text>{item.lahtoRaide}</Text>
-                <Text style={item.tuloPoikkeus && styles.poikkeusAika}>{item.tuloAika}</Text>
+                <Text style={[styles.listCell, styles.tunnus]}>{item.tunnus}</Text>
+                <Text style={[styles.listCell, styles.aika, item.lahtoPoikkeus && styles.poikkeusAika]}>{item.lahtoAika}</Text>
+                <Text style={[styles.listCell, styles.raide]}>{item.lahtoRaide}</Text>
+                <Text style={[styles.listCell, styles.aika, item.tuloPoikkeus && styles.poikkeusAika]}>{item.tuloAika}</Text>
             </View>
         );
     }
@@ -332,7 +332,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        height: 50
+        height: 50,
+        borderBottomWidth: 1,
+        borderBottomColor: '#efefef'
     },
     junat: {
         fontSize: 20
@@ -345,10 +347,6 @@ const styles = StyleSheet.create({
         height: 40,
         borderBottomWidth: 1,
         borderBottomColor: '#d3d3d3'
-    },
-    tunnus: {
-        justifyContent: 'center',
-        alignItems: 'center'
     },
     autoContainer: {
         position:'absolute',
@@ -363,5 +361,19 @@ const styles = StyleSheet.create({
     },
     poikkeusAika: {
         color: 'red'
+    },
+    listCell: {
+        width: '25%',
+        fontSize: 16,
+        textAlign: 'right'
+    },
+    tunnus: {
+        textAlign: 'center'
+    },
+    aika: {
+        paddingRight: "6%"
+    },
+    raide: {
+        paddingRight: "10%"
     }
 });
