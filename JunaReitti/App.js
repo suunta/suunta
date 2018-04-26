@@ -176,11 +176,22 @@ export default class JunaReitti extends Component {
 
     handleInput = (type, userInput) => {
         userInput = userInput.trim();
-        for (let asema in this.state.asemat) {
-            if (userInput.toUpperCase() === this.state.asemat[asema].stationName.toUpperCase()) {
+        for (let asema of this.state.asemat) {
+            if (userInput.toUpperCase() === asema.stationName.toUpperCase()) {
+
+                // kirjaa ylös käytetyimmät asemat
+                Realm.open({schema: [StationSchema, StationGroupSchema], deleteRealmIfMigrationNeeded: true})
+                .then(realm => {
+                    realm.write(() => {
+                        realm.create('Station', {id: asema.id, used: asema.used+1}, true);
+                    })
+                    const stationRealm = realm.objectForPrimaryKey('Station', asema.id);
+                    console.log("asemaa " + asema.stationName + " haettu " + asema.used + " kertaa");
+                })
+
                 this.setState({
-                    [type + 'Asema']: this.state.asemat[asema].stationName,
-                    [type + 'Lyhenne']: this.state.asemat[asema].stationShortCode
+                    [type + 'Asema']: asema.stationName,
+                    [type + 'Lyhenne']: asema.stationShortCode
                 }, () => {
                     this.fetchTrainData();
                 });
@@ -234,9 +245,15 @@ export default class JunaReitti extends Component {
                     .catch(error => console.log(error.message));
             } else {
                 console.log('*** Asemat on jo Realmissa, asetetaan '+ stationsCount +' asemaa stateen');
+//                const mostUsedStations = realm.objects('Station').filtered('used > 0').sorted('used', true);
+//                let alertText = '';
+//                for (let usedStation of Array.from(mostUsedStations)) {
+//                    alertText += usedStation.stationName + " " + usedStation.used + "\n";
+//                }
+//                Alert.alert("Haetuimmat asemat", alertText);
                 this.setState({
                     isLoading: false,
-                    asemat: realm.objects('StationGroup')[0].stations
+                    asemat: Array.from(realm.objects('StationGroup')[0].stations)
                 });
             }
         })

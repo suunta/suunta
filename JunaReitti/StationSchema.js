@@ -7,8 +7,8 @@ export const StationSchema = {
     stationName: 'string',
     stationShortCode: 'string',
     longitude: 'float',
-    latitude: 'float'
-
+    latitude: 'float',
+    used: {type: 'int', default: 0}
     //type: 'string',
     //countryCode: 'string',
 

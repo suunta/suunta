@@ -22,18 +22,9 @@ class AutoComplete extends React.Component {
     };
 
     componentDidMount() {
-
-        const tempL = [];
-
-        this.props.stations.map((station) => {
-
-            tempL.push(station.stationName);
-        });
-
         this.setState({
-            stationList: tempL
+            stationList: this.props.stations.map(station => station.stationName)
         })
-
     }
 
     componentWillReceiveProps(nextProps) {
@@ -44,6 +35,17 @@ class AutoComplete extends React.Component {
 
     findStation(query) {
         if (query === '') {
+            if (!(this.props.location && this.props.location.length > 0)) {
+                let mostUsedStations = this.props.stations.reduce((result, station) => {
+                    if (station.used > 0) {
+                        result.push({n: station.stationName, u: station.used});
+                    }
+                    return result;
+                }, [])
+                    .sort((a, b) => b.u - a.u)
+                    .map(asema => asema.n);
+                return mostUsedStations.slice(0,5);
+            }
             return [];
         }
 
@@ -91,8 +93,9 @@ class AutoComplete extends React.Component {
 
 const styles = StyleSheet.create({
     itemText: {
-        fontSize: 15,
-        margin: 2
+        fontSize: 16,
+        margin: 2,
+        lineHeight: 38
     },
     inputContainer: {
         borderRightWidth: 0,
@@ -104,5 +107,4 @@ const styles = StyleSheet.create({
         left: 3
     }
 });
-
 export default AutoComplete;
