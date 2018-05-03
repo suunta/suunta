@@ -300,9 +300,9 @@ export default class JunaReitti extends Component {
         return (
             <View style={{flex: 1, marginTop: (Platform.OS == 'ios') ? 20 : 0}}>
                 <StatusBar 
-                barStyle = "dark-content" 
+                barStyle = {Platform.OS === 'ios' ? "dark-content" : "light-content"}
                 hidden = {false}
-                translucent = {true}
+                translucent = {false}
                 networkActivityIndicatorVisible = {true}
                 />
               <FlatList style={styles.listContainer}
