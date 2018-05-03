@@ -95,7 +95,7 @@ export default class JunaReitti extends Component {
                             lahtoAikaObj = this.getArrDepTime(haettuJuna, this.state.lahtoLyhenne, 'DEPARTURE');
                             tuloAikaObj = this.getArrDepTime(haettuJuna, this.state.tuloLyhenne, 'ARRIVAL');
 
-                            if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined') {
+                            if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined' || (lahtoAikaObj.aika - tuloAikaObj.aika) > 2*60*1000) {
                                 console.log("Huono juna: " + haettuJuna.trainNumber);
                                 return;
                             }
