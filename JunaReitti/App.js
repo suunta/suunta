@@ -67,9 +67,9 @@ export default class JunaReitti extends Component {
     };
 
     fetchTrainData = () => {
-        Keyboard.dismiss();
 
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
+            Keyboard.dismiss();
             this.setState({
                 isRefreshing: true,
                 data: [],
@@ -174,7 +174,7 @@ export default class JunaReitti extends Component {
                     })
                 })
         }
-        };
+    };
 
     handleInput = (type, userInput) => {
         userInput = userInput.trim();

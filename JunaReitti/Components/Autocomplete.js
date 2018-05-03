@@ -9,7 +9,8 @@ class AutoComplete extends React.Component {
         super(props);
         this.state = {
             stationList: [],
-            query: ''
+            query: '',
+            hideSuggestions: true
         };
     }
 
@@ -19,7 +20,19 @@ class AutoComplete extends React.Component {
         }, () => {
             this.props.userInput(this.props.name, this.state.query);
         });
-    };
+    }
+    
+    blurHandler = () => {
+        this.setState({
+            hideSuggestions: true
+        })
+    }
+
+    focusHandler = () => {
+        this.setState({
+            hideSuggestions: false
+        })
+    }
 
     componentDidMount() {
 
@@ -58,8 +71,6 @@ class AutoComplete extends React.Component {
         const stations = this.findStation(query);
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
-        console.log(stations);
-
         let icon;
         if (this.props.location && this.props.location.length > 0 && this.state.query.length == 0) {
             icon = (<View style={styles.icon}><Icon name={'my-location'} size={20} color="#666" title="Oma Sijainti" /></View>)
@@ -74,6 +85,9 @@ class AutoComplete extends React.Component {
                     data={stations.length && comp(query, stations[0]) ? [] : stations}
                     defaultValue={query}
                     onChangeText={this.inputHandler}
+                    onBlur={this.blurHandler}
+                    onFocus={this.focusHandler}
+                    hideResults={this.state.hideSuggestions}
                     placeholder={icon ? '       '+this.props.location : this.props.placeholder}
                     renderItem={(data) => (
                         <TouchableOpacity onPress={() => this.setState({ query: data }, () => {this.props.userInput(this.props.name, this.state.query);})}>
