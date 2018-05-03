@@ -93,6 +93,7 @@ class AutoComplete extends React.Component {
                     hideResults={this.state.hideSuggestions}
                     onSubmitEditing={() => this.inputHandler(query, true)}
                     selectTextOnFocus={true}
+                    disableFullscreenUI={true}
                     placeholder={icon ? '       '+this.props.location : this.props.placeholder}
                     renderItem={(data) => (
                         <TouchableOpacity onPress={() => {
