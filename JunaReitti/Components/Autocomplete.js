@@ -91,8 +91,9 @@ class AutoComplete extends React.Component {
 
 const styles = StyleSheet.create({
     itemText: {
-        fontSize: 15,
-        margin: 2
+        fontSize: 16,
+        margin: 2,
+        lineHeight: 30
     },
     inputContainer: {
         borderRightWidth: 0,
