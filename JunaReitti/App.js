@@ -305,19 +305,19 @@ export default class JunaReitti extends Component {
                 translucent = {false}
                 networkActivityIndicatorVisible = {true}
                 />
-              <FlatList style={styles.listContainer}
-                data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
-                keyExtractor = {item => item.id.toString()}
-                ListHeaderComponent = {this.renderHeader}
-                stickyHeaderIndices={[0]}
-                renderItem = {this.renderItem}
-                onRefresh={this.onRefresh}
-                refreshing={this.state.isRefreshing}
-              />
-              <View style={styles.autoContainer}>
-                <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
-                <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
-              </View>
+                <FlatList style={styles.listContainer}
+                    data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
+                    keyExtractor = {item => item.id.toString()}
+                    ListHeaderComponent = {this.renderHeader}
+                    stickyHeaderIndices={[0]}
+                    renderItem = {this.renderItem}
+                    onRefresh={this.onRefresh}
+                    refreshing={this.state.isRefreshing}
+                />
+                <View style={styles.autoContainer}>
+                    <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
+                    <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
+                </View>
                 <HaeAsemat 
                     setLocationPermission = {locationPermission => this.setState({locationPermission})} 
                     asemat={this.state.asemat}
