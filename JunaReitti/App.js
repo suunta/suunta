@@ -5,7 +5,7 @@ import sortBy from "lodash/sortBy";
 import Realm from 'realm';
 import {StationSchema} from './StationSchema';
 import {StationGroupSchema} from "./StationGroupSchema";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert, Keyboard} from "react-native";
 import Permissions from 'react-native-permissions';
 import HaeAsemat from './Components/HaeAsemat';
 
@@ -67,6 +67,8 @@ export default class JunaReitti extends Component {
     };
 
     fetchTrainData = () => {
+        Keyboard.dismiss();
+        
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             this.setState({
                 isRefreshing: true,
