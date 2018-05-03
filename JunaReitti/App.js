@@ -5,7 +5,7 @@ import sortBy from "lodash/sortBy";
 import Realm from 'realm';
 import {StationSchema} from './StationSchema';
 import {StationGroupSchema} from "./StationGroupSchema";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert, Platform, StatusBar} from "react-native";
 import Permissions from 'react-native-permissions';
 import HaeAsemat from './Components/HaeAsemat';
 
@@ -298,20 +298,26 @@ export default class JunaReitti extends Component {
         }
 
         return (
-            <View style={{flex: 1, paddingTop: 0}}>
-              <FlatList style={styles.listContainer}
-                data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
-                keyExtractor = {item => item.id.toString()}
-                ListHeaderComponent = {this.renderHeader}
-                stickyHeaderIndices={[0]}
-                renderItem = {this.renderItem}
-                onRefresh={this.onRefresh}
-                refreshing={this.state.isRefreshing}
-              />
-              <View style={styles.autoContainer}>
-                <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
-                <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
-              </View>
+            <View style={{flex: 1, marginTop: (Platform.OS == 'ios') ? 20 : 0}}>
+                <StatusBar 
+                barStyle = {Platform.OS === 'ios' ? "dark-content" : "light-content"}
+                hidden = {false}
+                translucent = {false}
+                networkActivityIndicatorVisible = {true}
+                />
+                <FlatList style={styles.listContainer}
+                    data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
+                    keyExtractor = {item => item.id.toString()}
+                    ListHeaderComponent = {this.renderHeader}
+                    stickyHeaderIndices={[0]}
+                    renderItem = {this.renderItem}
+                    onRefresh={this.onRefresh}
+                    refreshing={this.state.isRefreshing}
+                />
+                <View style={styles.autoContainer}>
+                    <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
+                    <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
+                </View>
                 <HaeAsemat 
                     setLocationPermission = {locationPermission => this.setState({locationPermission})} 
                     asemat={this.state.asemat}
