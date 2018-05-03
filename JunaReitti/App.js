@@ -68,7 +68,7 @@ export default class JunaReitti extends Component {
 
     fetchTrainData = () => {
         Keyboard.dismiss();
-        
+
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             this.setState({
                 isRefreshing: true,
@@ -290,7 +290,7 @@ export default class JunaReitti extends Component {
     }
 
     render() {
-        
+
         if (this.state.isLoading) {
             return (
                 <View style={{flex: 1, paddingTop: 40}}>
@@ -301,14 +301,14 @@ export default class JunaReitti extends Component {
 
         return (
             <View style={{flex: 1, marginTop: (Platform.OS == 'ios') ? 20 : 0}}>
-                <StatusBar 
+                <StatusBar
                 barStyle = {Platform.OS === 'ios' ? "dark-content" : "light-content"}
                 hidden = {false}
                 translucent = {false}
                 networkActivityIndicatorVisible = {true}
                 />
                 <FlatList style={styles.listContainer}
-                    data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
+                    data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
                     keyExtractor = {item => item.id.toString()}
                     ListHeaderComponent = {this.renderHeader}
                     stickyHeaderIndices={[0]}
