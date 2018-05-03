@@ -10,25 +10,28 @@ class AutoComplete extends React.Component {
         this.state = {
             stationList: [],
             query: '',
-            hideSuggestions: true
+            hideSuggestions: true,
+            timeout: 0
         };
     }
 
-    inputHandler = (val) => {
+    inputHandler = (val, instant) => {
+        clearTimeout(this.state.timeout);
         this.setState({
-            query: val
-        }, () => {
-            this.props.userInput(this.props.name, this.state.query);
-        });
+            query: val,
+            timeout: setTimeout(() => {
+                this.props.userInput(this.props.name, val)
+            }, instant ? 0 : 1000)
+        })
     }
-    
-    blurHandler = () => {
+
+    hideSuggestions = () => {
         this.setState({
             hideSuggestions: true
         })
     }
 
-    focusHandler = () => {
+    unhideSuggestions = () => {
         this.setState({
             hideSuggestions: false
         })
@@ -82,15 +85,20 @@ class AutoComplete extends React.Component {
                     autoCapitalize="none"
                     inputContainerStyle={styles.inputContainer}
                     underlineColorAndroid='transparent'
-                    data={stations.length && comp(query, stations[0]) ? [] : stations}
+                    data={stations.length === 1 && comp(query, stations[0]) ? [] : stations}
                     defaultValue={query}
-                    onChangeText={this.inputHandler}
-                    onBlur={this.blurHandler}
-                    onFocus={this.focusHandler}
+                    onChangeText={(query) => this.inputHandler(query, stations.length === 1)}
+                    onBlur={this.hideSuggestions}
+                    onFocus={this.unhideSuggestions}
                     hideResults={this.state.hideSuggestions}
+                    onSubmitEditing={() => this.inputHandler(query, true)}
                     placeholder={icon ? '       '+this.props.location : this.props.placeholder}
                     renderItem={(data) => (
-                        <TouchableOpacity onPress={() => this.setState({ query: data }, () => {this.props.userInput(this.props.name, this.state.query);})}>
+                        <TouchableOpacity onPress={() => {
+                            this.inputHandler(data, true);
+                            this.hideSuggestions();
+                        }}>
+
                             <Text style={styles.itemText}>
                                 {data}
                             </Text>
