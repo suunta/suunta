@@ -178,14 +178,22 @@ export default class JunaReitti extends Component {
 
     handleInput = (type, userInput) => {
         userInput = userInput.trim();
-        for (let asema in this.state.asemat) {
-            if (userInput.toUpperCase() === this.state.asemat[asema].stationName.toUpperCase()) {
-                this.setState({
-                    [type + 'Asema']: this.state.asemat[asema].stationName,
-                    [type + 'Lyhenne']: this.state.asemat[asema].stationShortCode
-                }, () => {
-                    this.fetchTrainData();
-                });
+        if (userInput.length < 2) {
+            this.setState({
+                [type + 'Asema']: '',
+                [type + 'Lyhenne']: ''
+            })
+        }
+        else {
+            for (let asema in this.state.asemat) {
+                if (userInput.toUpperCase() === this.state.asemat[asema].stationName.toUpperCase()) {
+                    this.setState({
+                        [type + 'Asema']: this.state.asemat[asema].stationName,
+                        [type + 'Lyhenne']: this.state.asemat[asema].stationShortCode
+                    }, () => {
+                        this.fetchTrainData();
+                    });
+                }
             }
         }
     }
@@ -193,10 +201,9 @@ export default class JunaReitti extends Component {
     setLocation = (location) => {
         console.log('lokaatiosetloc');
         console.log(location);
-        this.handleInput('lahto', location);
         this.setState({locationCurrent: location}, () => {
-			this.setState({locationCurrent: ''})
-		});
+            this.setState({locationCurrent: ''})
+        });
     }
 
 	fetchStationsFromAPI = async () => {

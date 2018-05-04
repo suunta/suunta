@@ -11,7 +11,8 @@ class AutoComplete extends React.Component {
             stationList: [],
             query: '',
             hideSuggestions: true,
-            timeout: 0
+            timeout: 0,
+            myLocation: false
         };
     }
 
@@ -19,6 +20,7 @@ class AutoComplete extends React.Component {
         clearTimeout(this.state.timeout);
         this.setState({
             query: val,
+            myLocation: false,
             timeout: setTimeout(() => {
                 this.props.userInput(this.props.name, val)
             }, instant ? 0 : 1000)
@@ -54,7 +56,11 @@ class AutoComplete extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.location !== this.props.location && nextProps.location.length) {
-            this.setState({query: ''});
+            this.setState({
+                query: nextProps.location,
+                myLocation: true,
+                hideSuggestions: true
+            }, () => this.props.userInput(this.props.name, this.state.query));
         }
     }
 
@@ -75,13 +81,13 @@ class AutoComplete extends React.Component {
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
         let icon;
-        if (this.props.location && this.props.location.length > 0 && this.state.query.length == 0) {
-            icon = (<View style={styles.icon}><Icon name={'my-location'} size={20} color="#666" title="Oma Sijainti" /></View>)
+        if (this.state.myLocation) {
+            icon = (<View style={styles.icon}><Icon name={'my-location'} size={20} color="#444" title="Oma Sijainti" /></View>)
         }
 
         return (
             <View style={{width: '50%'}}>
-                <Autocomplete
+                <Autocomplete style={[styles.autocomplete, this.state.myLocation && styles.iconEnabled]}
                     autoCapitalize="none"
                     inputContainerStyle={styles.inputContainer}
                     underlineColorAndroid='transparent'
@@ -94,7 +100,7 @@ class AutoComplete extends React.Component {
                     onSubmitEditing={() => this.inputHandler(query, true)}
                     selectTextOnFocus={true}
                     disableFullscreenUI={true}
-                    placeholder={icon ? '       '+this.props.location : this.props.placeholder}
+                    placeholder={this.props.placeholder}
                     renderItem={(data) => (
                         <TouchableOpacity onPress={() => {
                             this.inputHandler(data, true);
@@ -126,6 +132,15 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         left: 3
+    },
+    autocomplete: {
+        width: '100%',
+        height: 40,
+        backgroundColor: '#fff',
+        paddingHorizontal: 10,
+    },
+    iconEnabled: {
+        paddingLeft: 30,
     }
 });
 
