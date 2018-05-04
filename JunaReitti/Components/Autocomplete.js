@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {TouchableOpacity, View, StyleSheet, Text} from "react-native";
 import Autocomplete from 'react-native-autocomplete-input';
 import { Icon } from "react-native-elements";
+import HaeAsemat from './HaeAsemat';
 
 class AutoComplete extends React.Component {
 
@@ -45,35 +46,35 @@ class AutoComplete extends React.Component {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.location !== this.props.location && nextProps.location.length) {
-            this.setState({
-                query: nextProps.location,
-                myLocation: true,
-                hideSuggestions: true
-            }, () => this.props.userInput(this.props.name, this.state.query));
-        }
-    }
-
     findStation(query) {
         if (query === '') {
-            if (!(this.props.location && this.props.location.length > 0)) {
-                let mostUsedStations = this.props.stations.reduce((result, station) => {
-                    if (station.used > 0) {
-                        result.push({n: station.stationName, u: station.used});
-                    }
-                    return result;
-                }, [])
-                    .sort((a, b) => b.u - a.u)
-                    .map(asema => asema.n);
-                return mostUsedStations.slice(0,5);
-            }
-            return [];
+            let mostUsedStations = this.props.stations.reduce((result, station) => {
+                if (station.used > 0 && station.stationName !== this.props.lahto) {
+                    result.push({n: station.stationName, u: station.used});
+                }
+                return result;
+            }, [])
+                .sort((a, b) => b.u - a.u)
+                .map(asema => asema.n);
+            if (this.props.name === "lahto") {
+                mostUsedStations.unshift("Oma sijainti");
+            }// else if (this.props.lahtoAsema)
+            return mostUsedStations.slice(0,5);
         }
 
         const { stationList } = this.state;
         const regex = new RegExp('^' + `${query.trim()}`, 'i');
         return stationList.filter(station => station.search(regex) >= 0);
+    }
+
+    setLocation = (location) => {
+        console.log('lokaatiosetloc');
+        console.log(location);
+        this.setState({
+            query: location,
+            myLocation: true,
+            hideSuggestions: true
+        }, () => this.props.userInput(this.props.name, this.state.query));
     }
 
     render() {
@@ -82,9 +83,9 @@ class AutoComplete extends React.Component {
         const stations = this.findStation(query);
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
-        let icon;
+        let myLocIcon;
         if (this.state.myLocation) {
-            icon = (<View style={styles.icon}><Icon name={'my-location'} size={20} color="#444" title="Oma Sijainti" /></View>)
+            myLocIcon = (<View style={styles.myLocIcon}><Icon name={'my-location'} size={20} color="#444" title="Oma Sijainti" /></View>)
         }
 
         return (
@@ -103,18 +104,21 @@ class AutoComplete extends React.Component {
                     selectTextOnFocus={true}
                     disableFullscreenUI={true}
                     placeholder={this.props.placeholder}
+                    autoFocus={this.props.name === "lahto"}
                     renderItem={(data) => (
-                        <TouchableOpacity onPress={() => {
-                            this.inputHandler(data, true);
-                            this.hideSuggestions();
-                        }}>
+                        data === 'Oma sijainti'
+                        ? (<HaeAsemat asemat={this.props.stations} location={this.setLocation} setLocationPermission={this.props.setLocationPermission} />)
+                        : (<TouchableOpacity onPress={() => {
+                                this.inputHandler(data, true);
+                                this.hideSuggestions();
+                            }}>
                             <Text style={styles.itemText}>
                                 {data}
                             </Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> )
                     )}
                 />
-                {icon}
+                {myLocIcon}
             </View>
         )
     }
@@ -130,7 +134,7 @@ const styles = StyleSheet.create({
         borderRightWidth: 0,
         borderLeftWidth: 0
     },
-    icon: {
+    myLocIcon: {
         position: 'absolute',
         top: 10,
         left: 3

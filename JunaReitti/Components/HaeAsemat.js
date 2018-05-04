@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, ToastAndroid, View } from 'react-native';
+import { Button, ToastAndroid, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import geolib from 'geolib';
 import Permissions from 'react-native-permissions';
 import { Icon } from "react-native-elements";
@@ -73,24 +73,38 @@ export default class HaeAsemat extends Component {
     render() {
 
         return(
-            <View style={{top: 6, right: 0, position:'absolute'}}>
+            <TouchableOpacity style={styles.getloc} onPress={requestPermission = () => {
+                    Permissions.request('location', { type: 'whenInUse' }).then(response => {
+                        // Returns once the user has chosen to 'allow' or to 'not allow' access
+                        // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+                    // setLocationResponse={response};
+                        this.getClosestStation()
+                    })
+                }}>
                 <Icon
                     name={'location-on'}
-                    size={26}
+                    size={22}
                     color="#222"
-                    onPress={ 
-                        requestPermission = () => {
-                            Permissions.request('location', { type: 'whenInUse' }).then(response => {
-                                // Returns once the user has chosen to 'allow' or to 'not allow' access
-                                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-                            // setLocationResponse={response};
-                                this.getClosestStation()
-                            })
-                        }
-                    }
                     title="Sijainti"
                 />
-            </View>    
+                <Text style={styles.omasijainti}>
+                    Hae lähin
+                </Text>
+            </TouchableOpacity>
         )
     }
 }
+const styles = StyleSheet.create({
+    omasijainti: {
+        fontSize: 16,
+        paddingLeft: 4
+    },
+    getloc: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderBottomColor: '#acacac',
+        margin: 2,
+        marginBottom: 9,
+        paddingVertical: 9
+    }
+});

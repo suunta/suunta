@@ -5,9 +5,8 @@ import sortBy from "lodash/sortBy";
 import Realm from 'realm';
 import {StationSchema} from './StationSchema';
 import {StationGroupSchema} from "./StationGroupSchema";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Platform, StatusBar, Keyboard} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Platform, StatusBar, Keyboard, Alert } from "react-native";
 import Permissions from 'react-native-permissions';
-import HaeAsemat from './Components/HaeAsemat';
 
 export default class JunaReitti extends Component {
 
@@ -24,8 +23,7 @@ export default class JunaReitti extends Component {
             tuloLyhenne: '',
             asemat: [],
             minimiAika: 0,
-            locationPermission: '',
-            locationCurrent: ''
+            locationPermission: ''
         };
     }
 
@@ -196,26 +194,15 @@ export default class JunaReitti extends Component {
                         const stationRealm = realm.objectForPrimaryKey('Station', asema.id);
                         console.log("asemaa " + asema.stationName + " haettu " + asema.used + " kertaa");
                     })
-
                     this.setState({
                         [type + 'Asema']: asema.stationName,
                         [type + 'Lyhenne']: asema.stationShortCode
                     }, () => {
                         this.fetchTrainData();
                     });
-
-
                 }
             }
         }
-    }
-
-    setLocation = (location) => {
-        console.log('lokaatiosetloc');
-        console.log(location);
-        this.setState({locationCurrent: location}, () => {
-            this.setState({locationCurrent: ''})
-        });
     }
 
 	fetchStationsFromAPI = async () => {
@@ -279,17 +266,16 @@ export default class JunaReitti extends Component {
 
     onRefresh = async () => {
         this.setState({
-        isRefreshing: true
-    });
-
-    this.fetchTrainData(() => {
-        this.setState({
-            isRefreshing: false
+            isRefreshing: true
         });
-    });
 
+        this.fetchTrainData(() => {
+            this.setState({
+                isRefreshing: false
+            });
+        });
 
-  };
+    };
 
     renderHeader() {
         return (
@@ -344,14 +330,10 @@ export default class JunaReitti extends Component {
                     refreshing={this.state.isRefreshing}
                 />
                 <View style={styles.autoContainer}>
-                    <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
-                    <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
+                    <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput}
+                                  setLocationPermission = {locationPermission => this.setState({locationPermission})}/>
+                    <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput} lahto={this.state.lahtoAsema} />
                 </View>
-                <HaeAsemat 
-                    setLocationPermission = {locationPermission => this.setState({locationPermission})} 
-                    asemat={this.state.asemat}
-                    location={this.setLocation}
-                />
             </View>
         );
     }
