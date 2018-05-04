@@ -194,7 +194,9 @@ export default class JunaReitti extends Component {
         console.log('lokaatiosetloc');
         console.log(location);
         this.handleInput('lahto', location);
-        this.setState({locationCurrent: location});
+        this.setState({locationCurrent: location}, () => {
+			this.setState({locationCurrent: ''})
+		});
     }
 
 	fetchStationsFromAPI = async () => {

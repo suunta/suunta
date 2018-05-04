@@ -53,7 +53,7 @@ class AutoComplete extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.location !== this.props.location) {
+        if (nextProps.location !== this.props.location && nextProps.location.length) {
             this.setState({query: ''});
         }
     }
