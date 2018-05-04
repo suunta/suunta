@@ -321,7 +321,7 @@ export default class JunaReitti extends Component {
                 networkActivityIndicatorVisible = {true}
                 />
                 <FlatList style={styles.listContainer}
-                    data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
+                    data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => !['I', 'P'].includes(juna.tunnus) || juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
                     keyExtractor = {item => item.id.toString()}
                     ListHeaderComponent = {this.renderHeader}
                     stickyHeaderIndices={[0]}
