@@ -5,7 +5,7 @@ import sortBy from "lodash/sortBy";
 import Realm from 'realm';
 import {StationSchema} from './StationSchema';
 import {StationGroupSchema} from "./StationGroupSchema";
-import {ActivityIndicator, View, Text, StyleSheet, FlatList, Button, ToastAndroid, Alert} from "react-native";
+import {ActivityIndicator, View, Text, StyleSheet, FlatList, Platform, StatusBar, Keyboard} from "react-native";
 import Permissions from 'react-native-permissions';
 import HaeAsemat from './Components/HaeAsemat';
 
@@ -67,7 +67,9 @@ export default class JunaReitti extends Component {
     };
 
     fetchTrainData = () => {
+
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
+            Keyboard.dismiss();
             this.setState({
                 isRefreshing: true,
                 data: [],
@@ -82,7 +84,7 @@ export default class JunaReitti extends Component {
             fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=' + trainLimit + '&startDate=' + currentTimeISO)
                 .then((response) => response.json())
                 .then(junat => junat.map(juna => {
-                    console.log("Käsitellään : " + juna.trainNumber);;
+                    console.log("Käsitellään : " + juna.trainNumber);
 
                     // Haetaan junalle ajantasaiset tiedot
                     fetch('https://rata.digitraffic.fi/api/v1/trains/latest/' + juna.trainNumber)
@@ -95,7 +97,7 @@ export default class JunaReitti extends Component {
                             lahtoAikaObj = this.getArrDepTime(haettuJuna, this.state.lahtoLyhenne, 'DEPARTURE');
                             tuloAikaObj = this.getArrDepTime(haettuJuna, this.state.tuloLyhenne, 'ARRIVAL');
 
-                            if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined') {
+                            if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined' || (lahtoAikaObj.aika - tuloAikaObj.aika) > 2*60*1000) {
                                 console.log("Huono juna: " + haettuJuna.trainNumber);
                                 return;
                             }
@@ -172,29 +174,38 @@ export default class JunaReitti extends Component {
                     })
                 })
         }
-        };
+    };
 
     handleInput = (type, userInput) => {
         userInput = userInput.trim();
-        for (let asema of this.state.asemat) {
-            if (userInput.toUpperCase() === asema.stationName.toUpperCase()) {
-
-                // kirjaa ylös käytetyimmät asemat
-                Realm.open({schema: [StationSchema, StationGroupSchema], deleteRealmIfMigrationNeeded: true})
-                .then(realm => {
-                    realm.write(() => {
-                        realm.create('Station', {id: asema.id, used: asema.used+1}, true);
+        if (userInput.length < 2) {
+            this.setState({
+                [type + 'Asema']: '',
+                [type + 'Lyhenne']: ''
+            })
+        }
+        else {
+            for (let asema of this.state.asemat) {
+                if (userInput.toUpperCase() === asema.stationName.toUpperCase()) {
+                    // kirjaa ylös käytetyimmät asemat
+                    Realm.open({schema: [StationSchema, StationGroupSchema], deleteRealmIfMigrationNeeded: true})
+                    .then(realm => {
+                        realm.write(() => {
+                            realm.create('Station', {id: asema.id, used: asema.used+1}, true);
+                        })
+                        const stationRealm = realm.objectForPrimaryKey('Station', asema.id);
+                        console.log("asemaa " + asema.stationName + " haettu " + asema.used + " kertaa");
                     })
-                    const stationRealm = realm.objectForPrimaryKey('Station', asema.id);
-                    console.log("asemaa " + asema.stationName + " haettu " + asema.used + " kertaa");
-                })
 
-                this.setState({
-                    [type + 'Asema']: asema.stationName,
-                    [type + 'Lyhenne']: asema.stationShortCode
-                }, () => {
-                    this.fetchTrainData();
-                });
+                    this.setState({
+                        [type + 'Asema']: asema.stationName,
+                        [type + 'Lyhenne']: asema.stationShortCode
+                    }, () => {
+                        this.fetchTrainData();
+                    });
+
+
+                }
             }
         }
     }
@@ -202,8 +213,9 @@ export default class JunaReitti extends Component {
     setLocation = (location) => {
         console.log('lokaatiosetloc');
         console.log(location);
-        this.handleInput('lahto', location);
-        this.setState({locationCurrent: location});
+        this.setState({locationCurrent: location}, () => {
+            this.setState({locationCurrent: ''})
+        });
     }
 
 	fetchStationsFromAPI = async () => {
@@ -258,22 +270,22 @@ export default class JunaReitti extends Component {
             }
         })
 
-            Permissions.check('location').then(response => {
-                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-                this.setState({ locationPermission: response })
-                console.log(this.state.locationPermission)
-            })
+        Permissions.check('location').then(response => {
+            // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+            this.setState({ locationPermission: response })
+            console.log(this.state.locationPermission)
+        })
     }
 
-  onRefresh = async () => {
-    this.setState({
-      isRefreshing: true
+    onRefresh = async () => {
+        this.setState({
+        isRefreshing: true
     });
 
     this.fetchTrainData(() => {
-      this.setState({
-        isRefreshing: false
-      });
+        this.setState({
+            isRefreshing: false
+        });
     });
 
 
@@ -305,7 +317,7 @@ export default class JunaReitti extends Component {
     }
 
     render() {
-        
+
         if (this.state.isLoading) {
             return (
                 <View style={{flex: 1, paddingTop: 40}}>
@@ -315,20 +327,26 @@ export default class JunaReitti extends Component {
         }
 
         return (
-            <View style={{flex: 1, paddingTop: 0}}>
-              <FlatList style={styles.listContainer}
-                data = {sortBy(this.state.data, 'lahtoPvm')}//.filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
-                keyExtractor = {item => item.id.toString()}
-                ListHeaderComponent = {this.renderHeader}
-                stickyHeaderIndices={[0]}
-                renderItem = {this.renderItem}
-                onRefresh={this.onRefresh}
-                refreshing={this.state.isRefreshing}
-              />
-              <View style={styles.autoContainer}>
-                <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
-                <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
-              </View>
+            <View style={{flex: 1, marginTop: (Platform.OS == 'ios') ? 20 : 0}}>
+                <StatusBar
+                barStyle = {Platform.OS === 'ios' ? "dark-content" : "light-content"}
+                hidden = {false}
+                translucent = {false}
+                networkActivityIndicatorVisible = {true}
+                />
+                <FlatList style={styles.listContainer}
+                    data = {sortBy(this.state.data, 'lahtoPvm').filter(juna => juna.matkaAika < this.state.minimiAika*2.1)} // Kerroin 2.1 => jos lyhin reitti 5min, sallitaan 2.1*5min matka-aika toista reittiä pitkin
+                    keyExtractor = {item => item.id.toString()}
+                    ListHeaderComponent = {this.renderHeader}
+                    stickyHeaderIndices={[0]}
+                    renderItem = {this.renderItem}
+                    onRefresh={this.onRefresh}
+                    refreshing={this.state.isRefreshing}
+                />
+                <View style={styles.autoContainer}>
+                    <Autocomplete stations={this.state.asemat} placeholder="Lähtöasema" name="lahto" userInput={this.handleInput} location={this.state.locationCurrent}/>
+                    <Autocomplete stations={this.state.asemat} placeholder="Tuloasema" name="tulo" userInput={this.handleInput}/>
+                </View>
                 <HaeAsemat 
                     setLocationPermission = {locationPermission => this.setState({locationPermission})} 
                     asemat={this.state.asemat}

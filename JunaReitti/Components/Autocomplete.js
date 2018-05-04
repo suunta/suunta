@@ -9,17 +9,35 @@ class AutoComplete extends React.Component {
         super(props);
         this.state = {
             stationList: [],
-            query: ''
+            query: '',
+            hideSuggestions: true,
+            timeout: 0,
+            myLocation: false
         };
     }
 
-    inputHandler = (val) => {
+    inputHandler = (val, instant) => {
+        clearTimeout(this.state.timeout);
         this.setState({
-            query: val
-        }, () => {
-            this.props.userInput(this.props.name, this.state.query);
-        });
-    };
+            query: val,
+            myLocation: false,
+            timeout: setTimeout(() => {
+                this.props.userInput(this.props.name, val)
+            }, instant ? 0 : 1000)
+        })
+    }
+
+    hideSuggestions = () => {
+        this.setState({
+            hideSuggestions: true
+        })
+    }
+
+    unhideSuggestions = () => {
+        this.setState({
+            hideSuggestions: false
+        })
+    }
 
     componentDidMount() {
         this.setState({
@@ -28,8 +46,12 @@ class AutoComplete extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.location !== this.props.location) {
-            this.setState({query: ''});
+        if (nextProps.location !== this.props.location && nextProps.location.length) {
+            this.setState({
+                query: nextProps.location,
+                myLocation: true,
+                hideSuggestions: true
+            }, () => this.props.userInput(this.props.name, this.state.query));
         }
     }
 
@@ -60,25 +82,32 @@ class AutoComplete extends React.Component {
         const stations = this.findStation(query);
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
-        console.log(stations);
-
         let icon;
-        if (this.props.location && this.props.location.length > 0 && this.state.query.length == 0) {
-            icon = (<View style={styles.icon}><Icon name={'my-location'} size={20} color="#666" title="Oma Sijainti" /></View>)
+        if (this.state.myLocation) {
+            icon = (<View style={styles.icon}><Icon name={'my-location'} size={20} color="#444" title="Oma Sijainti" /></View>)
         }
 
         return (
             <View style={{width: '50%'}}>
-                <Autocomplete
+                <Autocomplete style={[styles.autocomplete, this.state.myLocation && styles.iconEnabled]}
                     autoCapitalize="none"
                     inputContainerStyle={styles.inputContainer}
                     underlineColorAndroid='transparent'
-                    data={stations.length && comp(query, stations[0]) ? [] : stations}
+                    data={stations.length === 1 && comp(query, stations[0]) ? [] : stations}
                     defaultValue={query}
-                    onChangeText={this.inputHandler}
-                    placeholder={icon ? '       '+this.props.location : this.props.placeholder}
+                    onChangeText={(query) => this.inputHandler(query, stations.length === 1)}
+                    onBlur={this.hideSuggestions}
+                    onFocus={this.unhideSuggestions}
+                    hideResults={this.state.hideSuggestions}
+                    onSubmitEditing={() => this.inputHandler(query, true)}
+                    selectTextOnFocus={true}
+                    disableFullscreenUI={true}
+                    placeholder={this.props.placeholder}
                     renderItem={(data) => (
-                        <TouchableOpacity onPress={() => this.setState({ query: data }, () => {this.props.userInput(this.props.name, this.state.query);})}>
+                        <TouchableOpacity onPress={() => {
+                            this.inputHandler(data, true);
+                            this.hideSuggestions();
+                        }}>
                             <Text style={styles.itemText}>
                                 {data}
                             </Text>
@@ -95,7 +124,7 @@ const styles = StyleSheet.create({
     itemText: {
         fontSize: 16,
         margin: 2,
-        lineHeight: 38
+        lineHeight: 30
     },
     inputContainer: {
         borderRightWidth: 0,
@@ -105,6 +134,15 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         left: 3
+    },
+    autocomplete: {
+        width: '100%',
+        height: 40,
+        backgroundColor: '#fff',
+        paddingHorizontal: 10,
+    },
+    iconEnabled: {
+        paddingLeft: 30,
     }
 });
 export default AutoComplete;

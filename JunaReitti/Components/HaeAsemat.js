@@ -77,6 +77,7 @@ export default class HaeAsemat extends Component {
                 <Icon
                     name={'location-on'}
                     size={26}
+                    color="#222"
                     onPress={ 
                         requestPermission = () => {
                             Permissions.request('location', { type: 'whenInUse' }).then(response => {
