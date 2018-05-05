@@ -19,6 +19,9 @@ class AutoComplete extends React.Component {
     }
 
     inputHandler = (val, instant) => {
+        if (val.length < this.state.query.length) {
+            this.unhideSuggestions();
+        }
         clearTimeout(this.state.timeout);
         this.setState({
             query: val,
