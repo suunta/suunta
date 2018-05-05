@@ -208,12 +208,14 @@ export default class JunaReitti extends Component {
 	fetchStationsFromAPI = async () => {
 	    let response = await fetch('https://rata.digitraffic.fi/api/v1/metadata/stations');
 	    let data = await response.json();
-	    let asematFiltteroity = data.filter((asema) => asema.passengerTraffic === true);
+	    let asematFiltteroity = data.filter((asema) => asema.passengerTraffic === true && asema.stationShortCode !== "PAU");
 	    let asemat = asematFiltteroity.map(asema => {
             return {
                 id: asema.stationUICCode,
                 stationShortCode: asema.stationShortCode,
-                stationName: asema.stationName.split(" ")[1] === "asema" ? asema.stationName.split(" ")[0] : asema.stationName,
+                stationName: (asema.stationName.split(" ")[1] && asema.stationName.split(" ")[1].toUpperCase() === "ASEMA")
+                                ? asema.stationName.split(" ")[0]
+                                : asema.stationName,
                 passengerTraffic: asema.passengerTraffic,
                 longitude: asema.longitude,
                 latitude: asema.latitude
