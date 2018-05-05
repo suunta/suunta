@@ -99,6 +99,13 @@ class AutoComplete extends React.Component {
         this.setState({listHeight: listHeight});
     }
 
+    handleSelectionChange = (event) => {
+        const selection = event.nativeEvent.selection;
+        const selectionLength = selection.end - selection.start;
+        const inputLength = this.state.query.length;
+        this.setState({selected: selectionLength > 0 && selectionLength === inputLength});
+    }
+
     render() {
         const { query } = this.state;
         const stations = this.findStation(query);
@@ -108,10 +115,17 @@ class AutoComplete extends React.Component {
         if (this.state.myLocation) {
             myLocIcon = (<View style={styles.myLocIcon}><Icon name={'my-location'} size={20} color="#444" title="Oma Sijainti" /></View>)
         }
+        let clearIcon;
+        if (!this.state.hideSuggestions && this.state.selected) {
+            clearIcon = (<View style={styles.clearIcon}><Icon name={'clear'} size={20} color="#444" title="Tyhjennä" onPress={() => this.inputHandler('', true)} /></View>)
+        }
 
         return (
             <View style={{width: '50%'}}>
-                <Autocomplete style={[styles.autocomplete, this.state.myLocation && styles.iconEnabled]}
+                <Autocomplete style={[
+                         styles.autocomplete,
+                         myLocIcon && styles.myLocIconEnabled,
+                         clearIcon && styles.clearIconEnabled]}
                     autoCapitalize="none"
                     inputContainerStyle={styles.inputContainer}
                     underlineColorAndroid='transparent'
@@ -127,6 +141,7 @@ class AutoComplete extends React.Component {
                     placeholder={this.props.placeholder}
                     autoFocus={this.props.name === "lahto"}
                     listStyle={{ maxHeight: this.state.listHeight}}
+                    onSelectionChange={this.handleSelectionChange}
                     renderItem={(data) => (
                         data === 'Oma sijainti'
                         ? (<HaeAsemat asemat={this.props.stations} location={this.setLocation} setLocationPermission={this.props.setLocationPermission} />)
@@ -141,6 +156,7 @@ class AutoComplete extends React.Component {
                     )}
                 />
                 {myLocIcon}
+                {clearIcon}
             </View>
         )
     }
@@ -167,8 +183,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         paddingHorizontal: 10,
     },
-    iconEnabled: {
+    myLocIconEnabled: {
         paddingLeft: 30,
+    },
+    clearIcon: {
+        position: 'absolute',
+        top: 10,
+        right: 3
+    },
+    clearIconEnabled: {
+        paddingRight: 30,
     }
 });
 export default AutoComplete;
