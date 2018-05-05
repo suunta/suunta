@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     itemText: {
         fontSize: 16,
         margin: 2,
-        lineHeight: 30
+        lineHeight: 36
     },
     inputContainer: {
         borderRightWidth: 0,
