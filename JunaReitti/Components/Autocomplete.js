@@ -117,7 +117,7 @@ class AutoComplete extends React.Component {
         }
         let clearIcon;
         if (!this.state.hideSuggestions && this.state.selected) {
-            clearIcon = (<View style={styles.clearIcon}><Icon name={'clear'} size={20} color="#444" title="Tyhjennä" onPress={() => this.inputHandler('', true)} /></View>)
+            clearIcon = (<View style={styles.clearIcon}><Icon name={'clear'} size={26} color="#444" title="Tyhjennä" onPress={() => this.inputHandler('', true)} /></View>)
         }
 
         return (
@@ -188,11 +188,11 @@ const styles = StyleSheet.create({
     },
     clearIcon: {
         position: 'absolute',
-        top: 10,
-        right: 3
+        top: 8,
+        right: 4
     },
     clearIconEnabled: {
-        paddingRight: 30,
+        paddingRight: 40,
     }
 });
 export default AutoComplete;
