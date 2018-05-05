@@ -234,14 +234,14 @@ export default class JunaReitti extends Component {
                 console.log('Haetaan asemat');
                 this.fetchStationsFromAPI()
                     .then(asemat => {
-                        this.setState({
-                            asemat: asemat,
-                            isLoading: false
-                        });
                         console.log('*** Lisätään hakuajankohta ja asemat Realmiin');
                         realm.write(() => {
                             realm.create('StationGroup', {id: 1, lastUpdated: new Date(), stations: asemat}, true)
                         })
+                        this.setState({
+                            asemat: Array.from(realm.objects('StationGroup')[0].stations),
+                            isLoading: false
+                        });
                     })
                     .catch(error => console.log(error.message));
             } else {
