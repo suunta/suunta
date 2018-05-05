@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {TouchableOpacity, View, StyleSheet, Text} from "react-native";
+import {TouchableOpacity, View, StyleSheet, Text, Keyboard, Dimensions} from "react-native";
 import Autocomplete from 'react-native-autocomplete-input';
 import { Icon } from "react-native-elements";
 import HaeAsemat from './HaeAsemat';
@@ -13,7 +13,8 @@ class AutoComplete extends React.Component {
             query: '',
             hideSuggestions: true,
             timeout: 0,
-            myLocation: false
+            myLocation: false,
+            listHeight: Dimensions.get('window').height - 72
         };
     }
 
@@ -44,6 +45,8 @@ class AutoComplete extends React.Component {
         this.setState({
             stationList: this.props.stations.map(station => station.stationName)
         })
+        this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+        this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     }
 
     findStation(query) {
@@ -58,7 +61,7 @@ class AutoComplete extends React.Component {
                 .map(asema => asema.n);
             if (this.props.name === "lahto") {
                 mostUsedStations.unshift("Oma sijainti");
-            }// else if (this.props.lahtoAsema)
+            }
             return mostUsedStations.slice(0,5);
         }
 
@@ -77,8 +80,23 @@ class AutoComplete extends React.Component {
         }, () => this.props.userInput(this.props.name, this.state.query));
     }
 
-    render() {
+    componentWillUnmount () {
+        this.keyboardDidShowListener.remove();
+        this.keyboardDidHideListener.remove();
+    }
 
+    _keyboardDidShow =  (e) => {
+        const keyboardHeight = e.endCoordinates.height;
+        const listHeight = Dimensions.get('window').height - keyboardHeight - 72;
+        this.setState({listHeight: listHeight});
+    }
+
+    _keyboardDidHide = (e) => {
+        const listHeight = Dimensions.get('window').height - 72;
+        this.setState({listHeight: listHeight});
+    }
+
+    render() {
         const { query } = this.state;
         const stations = this.findStation(query);
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
@@ -105,6 +123,7 @@ class AutoComplete extends React.Component {
                     disableFullscreenUI={true}
                     placeholder={this.props.placeholder}
                     autoFocus={this.props.name === "lahto"}
+                    listStyle={{ maxHeight: this.state.listHeight}}
                     renderItem={(data) => (
                         data === 'Oma sijainti'
                         ? (<HaeAsemat asemat={this.props.stations} location={this.setLocation} setLocationPermission={this.props.setLocationPermission} />)
