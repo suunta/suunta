@@ -65,7 +65,6 @@ export default class JunaReitti extends Component {
     };
 
     fetchTrainData = () => {
-
         if(this.state.tuloLyhenne !== '' && this.state.lahtoLyhenne !== '') {
             Keyboard.dismiss();
             this.setState({
@@ -81,95 +80,92 @@ export default class JunaReitti extends Component {
 
             fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/'+this.state.lahtoLyhenne+'/'+this.state.tuloLyhenne + '?limit=' + trainLimit + '&startDate=' + currentTimeISO)
                 .then((response) => response.json())
-                .then(junat => junat.map(juna => {
-                    console.log("Käsitellään : " + juna.trainNumber);
+                .then(junat => {
+                    Promise.all(junat.map(juna => {
+                        console.log("Käsitellään : " + juna.trainNumber);
 
-                    // Haetaan junalle ajantasaiset tiedot
-                    fetch('https://rata.digitraffic.fi/api/v1/trains/latest/' + juna.trainNumber)
-                        .then((response) => response.json())
-                        .then(haetutJunat => haetutJunat.map(haettuJuna => {
-                            console.log("Fetchattu tarkat tiedot: " + juna.trainNumber);
-                            let id = haettuJuna.trainNumber;
-                            let tunnus = haettuJuna.commuterLineID !== "" ? haettuJuna.commuterLineID : haettuJuna.trainType + haettuJuna.trainNumber;
+                        // Haetaan junalle ajantasaiset tiedot
+                        return fetch('https://rata.digitraffic.fi/api/v1/trains/latest/' + juna.trainNumber)
+                            .then((response) => response.json())
+                            .then(haetutJunat => haetutJunat.map(haettuJuna => {
+                                console.log("Fetchattu tarkat tiedot: " + juna.trainNumber);
+                                let id = haettuJuna.trainNumber;
+                                let tunnus = haettuJuna.commuterLineID !== "" ? haettuJuna.commuterLineID : haettuJuna.trainType + haettuJuna.trainNumber;
 
-                            lahtoAikaObj = this.getArrDepTime(haettuJuna, this.state.lahtoLyhenne, 'DEPARTURE');
-                            tuloAikaObj = this.getArrDepTime(haettuJuna, this.state.tuloLyhenne, 'ARRIVAL');
+                                lahtoAikaObj = this.getArrDepTime(haettuJuna, this.state.lahtoLyhenne, 'DEPARTURE');
+                                tuloAikaObj = this.getArrDepTime(haettuJuna, this.state.tuloLyhenne, 'ARRIVAL');
 
-                            if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined' || (lahtoAikaObj.aika - tuloAikaObj.aika) > 2*60*1000) {
-                                console.log("Huono juna: " + haettuJuna.trainNumber);
-                                return;
-                            }
+                                if (typeof (lahtoAikaObj) === 'undefined' || typeof (tuloAikaObj) === 'undefined' || (lahtoAikaObj.aika - tuloAikaObj.aika) > 2*60*1000) {
+                                    console.log("Huono juna: " + haettuJuna.trainNumber);
+                                    return;
+                                }
 
-                            const lahtoAika = lahtoAikaObj.aika;
-                            const tuloAika = tuloAikaObj.aika;
+                                const lahtoAika = lahtoAikaObj.aika;
+                                const tuloAika = tuloAikaObj.aika;
 
-                            const raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
+                                const raideIndex = this.state.lahtoLyhenne === 'PSL' && this.state.tuloLyhenne === 'HKI' && ['I', 'P'].includes(tunnus) ? 1 : 0;
 
-                            const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
-                            let tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
+                                const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
+                                let tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
 
-                            console.log("lahtoAika : " + lahtoAika + " -> " + lahtoAikaPrint);
-                            console.log("tuloAika : " + tuloAika + " -> " + tuloAikaPrint);
+                                console.log("lahtoAika : " + lahtoAika + " -> " + lahtoAikaPrint);
+                                console.log("tuloAika : " + tuloAika + " -> " + tuloAikaPrint);
 
-                            // Lasketaan matka-aika, jotta voidaan karsia järjettömät matkat pois
-                            const traveltime = (new Date(tuloAika) - new Date(lahtoAika))/1000;
+                                // Lasketaan matka-aika, jotta voidaan karsia järjettömät matkat pois
+                                const traveltime = (new Date(tuloAika) - new Date(lahtoAika))/1000;
 
-                            if (this.state.minimiAika > traveltime) {
-                                this.setState({
-                                    minimiAika: traveltime
-                                });
-                            }
+                                if (this.state.minimiAika > traveltime) {
+                                    this.setState({
+                                        minimiAika: traveltime
+                                    });
+                                }
 
-                            let lahtoRaide = juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[raideIndex].commercialTrack;
+                                let lahtoRaide = juna.timeTableRows.filter((row) => row.stationShortCode === this.state.lahtoLyhenne && row.trainStopping === true && row.type === 'DEPARTURE')[raideIndex].commercialTrack;
 
-                            // Tarkistetaan, onko koko juna peruttu
-                            if (haettuJuna.cancelled) {
-                                lahtoRaide = '-';
-                                tuloAikaPrint = 'peruttu';
-                                lahtoAikaObj.poikkeus = true;
-                                tuloAikaObj.poikkeus = true;
-                                // todo: syykoodi <- vaatii oman fetchin syykoodeista ja selityksistä
-                            }
+                                // Tarkistetaan, onko koko juna peruttu
+                                if (haettuJuna.cancelled) {
+                                    lahtoRaide = '-';
+                                    tuloAikaPrint = 'peruttu';
+                                    lahtoAikaObj.poikkeus = true;
+                                    tuloAikaObj.poikkeus = true;
+                                    // todo: syykoodi <- vaatii oman fetchin syykoodeista ja selityksistä
+                                }
 
-                            return {
-                                id: id,
-                                tunnus: tunnus,
-                                lahtoPvm: lahtoAika,
-                                lahtoAika: lahtoAikaPrint,
-                                lahtoRaide: lahtoRaide,
-                                tuloAika: tuloAikaPrint,
-                                matkaAika: traveltime,
-                                lahtoPoikkeus: lahtoAikaObj.poikkeus,
-                                tuloPoikkeus: tuloAikaObj.poikkeus,
-                            }
+                                return {
+                                    id: id,
+                                    tunnus: tunnus,
+                                    lahtoPvm: lahtoAika,
+                                    lahtoAika: lahtoAikaPrint,
+                                    lahtoRaide: lahtoRaide,
+                                    tuloAika: tuloAikaPrint,
+                                    matkaAika: traveltime,
+                                    lahtoPoikkeus: lahtoAikaObj.poikkeus,
+                                    tuloPoikkeus: tuloAikaObj.poikkeus,
+                                }
 
-                        }))
-                        .then((responseJson) => {
-                            if (typeof(this.state.data) === 'undefined') {
-                                this.setState({
-                                  data: [],
-                                  isRefreshing: true,
-                                })
-                            }
-                            if (typeof(responseJson[0]) !== 'undefined') {
-                              this.setState({
-                                data: this.state.data.concat(responseJson),
-                              }, function () {
-                                // do something with new state
-                              });
-                            }
-                        })
-                        .catch((error) => {
-                            console.error(error);
+                            }))
+                            .then((responseJson) => {
+                                if (typeof(responseJson[0]) !== 'undefined') {
+                                  this.setState({
+                                    data: this.state.data.concat(responseJson),
+                                  });
+                                }
+                            })
+                            .catch((error) => {
+                                console.error(error);
+                            });
+                    })).then(() => {
+                        console.log("All fetches are done");
+                        this.setState({
+                            isRefreshing: false
                         });
                     })
-                )
-                .catch(error => console.log(error))
-                // tarpeellinen?
-                .then(() => {
+                })
+                .catch(error => {
+                    console.log(error)
                     this.setState({
-                        isRefreshing: false,
-                    })
+                        isRefreshing: false
+                    });
                 })
         }
     };
@@ -267,16 +263,7 @@ export default class JunaReitti extends Component {
     }
 
     onRefresh = async () => {
-        this.setState({
-            isRefreshing: true
-        });
-
-        this.fetchTrainData(() => {
-            this.setState({
-                isRefreshing: false
-            });
-        });
-
+        this.fetchTrainData();
     };
 
     renderHeader() {
