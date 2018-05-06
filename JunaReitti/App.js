@@ -108,6 +108,11 @@ export default class JunaReitti extends Component {
                                 const lahtoAikaPrint = this.formatIsoDateToHoursMinutes(lahtoAika);
                                 let tuloAikaPrint = this.formatIsoDateToHoursMinutes(tuloAika);
 
+                                if (lahtoAikaObj.poikkeus || tuloAikaObj.poikkeus) {
+                                    tuloAikaObj.poikkeus = true;
+                                    tuloAikaPrint = '~' + tuloAikaPrint;
+                                }
+
                                 console.log("lahtoAika : " + lahtoAika + " -> " + lahtoAikaPrint);
                                 console.log("tuloAika : " + tuloAika + " -> " + tuloAikaPrint);
 
