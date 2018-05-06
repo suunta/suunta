@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, ToastAndroid, View } from 'react-native';
+import { Button, ToastAndroid, View, StyleSheet, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import geolib from 'geolib';
 import Permissions from 'react-native-permissions';
 import { Icon } from "react-native-elements";
@@ -14,7 +14,8 @@ export default class HaeAsemat extends Component {
             longitude: null,
             error: null,
             lahinAsema: '',
-            index: 1
+            index: 1,
+            loading: false
         }
     }
 
@@ -50,8 +51,7 @@ export default class HaeAsemat extends Component {
                     // Tämä pitää muuttaa, jotta sijainti menee inputfieldiin this.handleDepartInput(result.key);
                     //this.props.input(result.key);
                     this.props.location(result.key);
-
-                
+                    this.setState({loading: false});
                 });
             },           
             (error) => {
@@ -67,29 +67,48 @@ export default class HaeAsemat extends Component {
                 };
             },
             { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 },
-        );        
+        );
     };
 
     render() {
 
         return(
-            <View style={{top: 6, right: 0, position:'absolute'}}>
-                <Icon
+            <TouchableOpacity style={styles.getloc} disabled={this.state.loading} onPress={requestPermission = () => {
+                    Permissions.request('location', { type: 'whenInUse' }).then(response => {
+                        // Returns once the user has chosen to 'allow' or to 'not allow' access
+                        // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+                    // setLocationResponse={response};
+                        this.getClosestStation();
+                        this.setState({loading: true});
+                    })
+                }}>
+                {this.state.loading
+                ? <ActivityIndicator/>
+                : <Icon
                     name={'location-on'}
-                    size={26}
-                    onPress={ 
-                        requestPermission = () => {
-                            Permissions.request('location', { type: 'whenInUse' }).then(response => {
-                                // Returns once the user has chosen to 'allow' or to 'not allow' access
-                                // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-                            // setLocationResponse={response};
-                                this.getClosestStation()
-                            })
-                        }
-                    }
+                    size={22}
+                    color="#222"
                     title="Sijainti"
-                />
-            </View>    
+                  />
+                 }
+                <Text style={styles.omasijainti}>
+                    Hae lähin
+                </Text>
+            </TouchableOpacity>
         )
     }
 }
+const styles = StyleSheet.create({
+    omasijainti: {
+        fontSize: 16,
+        paddingLeft: 4
+    },
+    getloc: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderBottomColor: '#acacac',
+        margin: 2,
+        marginBottom: 9,
+        paddingVertical: 9
+    }
+});
