@@ -118,8 +118,8 @@ class AutoComplete extends React.Component {
         let clearIcon;
         if (!this.state.hideSuggestions && this.state.selected) {
             clearIcon = (<TouchableOpacity style={styles.clearIcon} onPress={() => this.inputHandler('', true)}>
-                <Icon name={'clear'} size={26} color="#444" title="Tyhjennä" />
-            </TouchableOpacity>)
+                            <Icon name={'clear'} size={26} color="#444" title="Tyhjennä" />
+                        </TouchableOpacity>)
         }
 
         return (
