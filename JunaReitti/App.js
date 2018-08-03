@@ -72,7 +72,7 @@ export default class JunaReitti extends Component {
                 data: [],
                 minimiAika: 99999999
             });
-            const trainLimit = 50;
+            const trainLimit = 30;
             const offsetInMinutes = -30; // ainakin jonkin verran myöhästymisten takia
             let currentTime = new Date();
             currentTime.setMinutes(currentTime.getMinutes() + offsetInMinutes);
