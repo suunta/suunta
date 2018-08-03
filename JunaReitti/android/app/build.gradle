@@ -87,7 +87,7 @@ apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = false
+def enableSeparateBuildPerCPUArchitecture = true
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
@@ -102,12 +102,22 @@ android {
         applicationId "com.junareitti"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 1
+        versionCode 5
         versionName "1.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
     }
+    signingConfigs {
+            release {
+                if (project.hasProperty('JUNAREITTI_RELEASE_STORE_FILE')) {
+                    storeFile file(JUNAREITTI_RELEASE_STORE_FILE)
+                    storePassword JUNAREITTI_RELEASE_STORE_PASSWORD
+                    keyAlias JUNAREITTI_RELEASE_KEY_ALIAS
+                    keyPassword JUNAREITTI_RELEASE_KEY_PASSWORD
+                }
+            }
+        }
     splits {
         abi {
             reset()
@@ -117,9 +127,14 @@ android {
         }
     }
     buildTypes {
+        debug {
+            manifestPlaceholders = [excludeSystemAlertWindowPermission: "false"]
+        }
         release {
+             manifestPlaceholders = [excludeSystemAlertWindowPermission: "true"]
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
         }
     }
     // applicationVariants are e.g. debug, release
